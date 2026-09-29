@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Plot - mockup</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <header class="app-header">
+        <h1>Plot</h1>
+        <p>Manage and organize your personal collection of movies and TV shows.</p>
+        <p class="app-count">3 items, of which 1 active</p>
+    </header>
+
+    <main class="container">
+        <section class="panel">
+            <h2>Add item</h2>
+            <form class="item-form">
+                <label>Title 
+                    <input type="text" name="title" placeholder="Ex: Inception" />
+                </label>
+                <label>Format
+                    <select name="format">
+                        <option value="movie">Movie</option>
+                        <option value="series">Series</option>
+                        <option value="animation">Animation</option>
+                    </select>
+                </label>
+                <button type="submit">Add</button>
+            </form>
+        </section>
+
+        <section class="panel">
+            <h2>My List</h2>
+            <!-- Când lista e goală: <p class="empty">No items found.</p> -->
+            <ul class="item-list">
+                <li class="item-card">
+                    <div>
+                        <h3>Inception</h3>
+                        <span class="badge badge-movie">Movie</span>
+                    </div>
+                    <span class="status">Active</span>
+                </li>
+                <li class="item-card done">
+                    <div>
+                        <h3>Breaking Bad</h3>
+                        <span class="badge badge-series">Series</span>
+                    </div>
+                    <span class="status">Done</span>
+                </li>
+                <li class="item-card">
+                    <div>
+                        <h3>Spirited Away</h3>
+                        <span class="badge badge-animation">Animation</span>
+                    </div>
+                    <span class="status">Active</span>
+                </li>
+            </ul>
+        </section>
+    </main>
+
+    <footer class="app-footer">Web Technologies Project</footer>
+</body>
+</html>

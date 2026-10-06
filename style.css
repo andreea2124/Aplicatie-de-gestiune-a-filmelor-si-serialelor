@@ -3,18 +3,19 @@
 }
 
 :root {
-    --bg: #fdfbf7;
+    --bg: #f7f2eb;
     --card: #ffffff;
-    --text: #3e2723;
-    --muted: #8d6e63;
-    --accent: #795548;
-    --accent-dark: #5d4037;
-    --accent-soft: #efebe9;
-    --border: #d7ccc8;
+    --text: #3c2a21;
+    --muted: #8c7365;
+    --accent: #6b4f4f;
+    --accent-dark: #4a3333;
+    --accent-soft: #f4ece1;
+    --border: #d8c8bc;
+    --shadow: rgba(60, 42, 33, 0.08);
     
-    --badge-movie: #8d6e63;
-    --badge-series: #6d4c41;
-    --badge-animation: #a1887f;
+    --badge-movie: #7d5a50;
+    --badge-series: #5c4033;
+    --badge-animation: #967259;
 }
 
 body {
@@ -22,91 +23,135 @@ body {
     font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     background: var(--bg);
     color: var(--text);
-    line-height: 1.5;
+    line-height: 1.6;
+    animation: fadeIn 0.6s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 .app-header {
-    background: var(--accent);
-    color: #ffffff;
+    background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+    color: #fdfbf7;
     text-align: center;
-    padding: 32px 16px;
+    padding: 48px 16px;
+    border-bottom: 4px solid #b08968;
+    position: relative;
+    overflow: hidden;
+}
+
+.app-header::after {
+    content: "🎬 🍿 🎥";
+    display: block;
+    font-size: 1.2rem;
+    margin-top: 10px;
+    letter-spacing: 8px;
+    opacity: 0.85;
 }
 
 .app-header h1 {
     margin: 0 0 8px 0;
-    font-size: 2.2rem;
+    font-size: 2.5rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .app-header p {
-    margin: 0 0 4px 0;
+    margin: 0 0 6px 0;
+    font-weight: 300;
 }
 
 .app-count {
-    font-size: 0.9rem;
-    opacity: 0.85;
+    font-size: 0.95rem;
+    opacity: 0.9;
+    font-style: italic;
 }
 
 .container {
     max-width: 1000px;
-    margin: 24px auto;
+    margin: 32px auto;
     padding: 0 16px;
     display: grid;
     grid-template-columns: 1fr 2fr;
-    gap: 24px;
+    gap: 28px;
     align-items: start;
 }
 
 .panel {
     background: var(--card);
     border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 20px;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 10px 25px var(--shadow);
+    transition: transform 0.3s ease;
+}
+
+.panel:hover {
+    transform: translateY(-2px);
 }
 
 .panel h2 {
     margin-top: 0;
-    font-size: 1.25rem;
-    border-bottom: 1px solid var(--border);
-    padding-bottom: 10px;
+    font-size: 1.3rem;
+    border-bottom: 2px solid var(--accent-soft);
+    padding-bottom: 12px;
+    color: var(--accent-dark);
 }
 
 .item-form {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 18px;
 }
 
 .item-form label {
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    font-weight: 500;
+    gap: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--accent-dark);
 }
 
 .item-form input,
 .item-form select {
-    padding: 10px 12px;
-    border: 1px solid var(--border);
-    border-radius: 8px;
+    padding: 12px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
     font-size: 1rem;
-    background: var(--card);
+    background: var(--bg);
     color: var(--text);
+    transition: all 0.2s ease;
+}
+
+.item-form input:focus,
+.item-form select:focus {
+    border-color: var(--accent);
+    background: var(--card);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(107, 79, 79, 0.15);
 }
 
 .item-form button {
     background: var(--accent);
     color: #ffffff;
     border: none;
-    border-radius: 8px;
-    padding: 12px;
+    border-radius: 10px;
+    padding: 14px;
     font-size: 1rem;
-    font-weight: 600;
+    font-weight: 700;
     cursor: pointer;
-    transition: background 0.2s;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 12px rgba(107, 79, 79, 0.25);
 }
 
 .item-form button:hover {
     background: var(--accent-dark);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 15px rgba(74, 51, 51, 0.35);
 }
 
 .item-list {
@@ -115,47 +160,56 @@ body {
     margin: 0;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 14px;
 }
 
 .item-card {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 14px 16px;
+    padding: 16px 18px;
     border: 1px solid var(--border);
-    border-radius: 10px;
+    border-radius: 12px;
     background: var(--card);
-    transition: border-color 0.2s, background 0.2s;
+    transition: all 0.25s ease;
+    box-shadow: 0 2px 5px var(--shadow);
 }
 
 .item-card:hover {
     border-color: var(--accent);
     background: var(--accent-soft);
+    transform: translateX(4px);
 }
 
 .item-card h3 {
-    margin: 0 0 6px 0;
-    font-size: 1.05rem;
+    margin: 0 0 8px 0;
+    font-size: 1.1rem;
+    font-weight: 700;
 }
 
 .item-card.done h3 {
     text-decoration: line-through;
     color: var(--muted);
+    opacity: 0.75;
 }
 
 .status {
     font-size: 0.85rem;
     font-weight: 600;
     color: var(--muted);
+    background: var(--accent-soft);
+    padding: 4px 10px;
+    border-radius: 20px;
 }
 
 .badge {
     font-size: 0.75rem;
-    padding: 3px 8px;
-    border-radius: 50px;
+    padding: 4px 10px;
+    border-radius: 20px;
     color: #ffffff;
-    font-weight: 500;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
 }
 
 .badge-movie { background: var(--badge-movie); }
@@ -164,14 +218,16 @@ body {
 
 .app-footer {
     text-align: center;
-    padding: 24px;
+    padding: 32px;
     color: var(--muted);
     font-size: 0.9rem;
+    border-top: 1px solid var(--border);
+    margin-top: 40px;
 }
 
 :focus-visible {
     outline: 2px solid var(--accent);
-    outline-offset: 2px;
+    outline-offset: 3px;
 }
 
 @media (max-width: 700px) {
@@ -182,11 +238,14 @@ body {
 
 @media (prefers-color-scheme: dark) {
     :root {
-        --bg: #1a1614;
-        --card: #27211e;
-        --text: #d7ccc8;
-        --muted: #a1887f;
-        --border: #4e3830;
-        --accent-soft: #382c26;
+        --bg: #181412;
+        --card: #221c19;
+        --text: #ede0d4;
+        --muted: #b08968;
+        --accent: #9c6644;
+        --accent-dark: #b08968;
+        --accent-soft: #2c231f;
+        --border: #4a3b32;
+        --shadow: rgba(0, 0, 0, 0.3);
     }
 }

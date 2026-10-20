@@ -39,6 +39,11 @@ The list is rendered from the data, through two components:
 - `FilmList` receives the whole array and renders one card per item
 - `FilmCard` receives a single item through props and displays it
 
+## Extra: catalog and My List
+Beyond the guide, the interface has two panels:
+- **Catalog** (`Catalog`, `CatalogItem`): about 68 movies, series and animations grouped by category (Action, Comedy, Drama, Romance, Thriller, SF), each with an "Add" button. The first three titles are the sample data above; the catalog lives in `frontend/src/data/catalog.js`.
+- **My List**: the titles added from the catalog. The status can be toggled between Active and Done, and a title can be removed. The list is kept in `localStorage`, so it survives a page reload. The data logic (`adaugaInLista`, `comutaVazut`, `stergeFilm`) is in `frontend/src/logica.js`, reused from stage 2.
+
 ## AI usage
 | Tool | Used for |
 | ---- | -------- |

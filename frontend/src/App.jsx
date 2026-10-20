@@ -1,3 +1,5 @@
+import FilmList from "./components/FilmList.jsx";
+
 const filme = [
   { id: 1, titlu: "Inception", vizionat: false, format: "movie" },
   { id: 2, titlu: "Breaking Bad", vizionat: true, format: "series" },
@@ -24,8 +26,7 @@ export default function App() {
       <main className="container">
         <section className="panel">
           <h2>My List</h2>
-          {/* Temporar: date brute; componentele apar în Etapa 4 */}
-          <pre>{JSON.stringify(filme, null, 2)}</pre>
+          <FilmList filme={filme} />
         </section>
       </main>
 

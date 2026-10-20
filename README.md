@@ -34,6 +34,11 @@ Plain JavaScript, no DOM. `mockup/filme.js` holds the array and the functions th
 ## Stage 3: Vite and React project
 The app now lives in `frontend/`, built with Vite. The data from stage 2 moved into the main component; the list is still printed raw.
 
+## Stage 4: components
+The list is rendered from the data, through two components:
+- `FilmList` receives the whole array and renders one card per item
+- `FilmCard` receives a single item through props and displays it
+
 ## AI usage
 | Tool | Used for |
 | ---- | -------- |
@@ -46,3 +51,4 @@ Details per stage: see the `ai-log/` folder.
 - [x] Stage 1: static mockup
 - [x] Stage 2: data logic in JavaScript
 - [x] Stage 3: Vite and React project
+- [x] Stage 4: components rendered from data

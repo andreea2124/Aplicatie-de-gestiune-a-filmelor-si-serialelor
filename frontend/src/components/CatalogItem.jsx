@@ -15,7 +15,7 @@ export default function CatalogItem({ titlu, inLista, onAdauga }) {
         disabled={inLista}
         aria-label={inLista ? `${titlu.titlu} is in My List` : `Add ${titlu.titlu} to My List`}
       >
-        {inLista ? "Added" : "+ Add"}
+        {inLista ? "✓ Added" : "+ Add"}
       </button>
     </li>
   );

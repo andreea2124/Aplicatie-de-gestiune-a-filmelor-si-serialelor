@@ -12,9 +12,9 @@ A web application for managing and organizing a personal collection of movies an
 | user | relation | the owner of the item                            |
 
 Sample data used across all stages:
-1. Inception, active, movie
-2. Breaking Bad, done, series
-3. Spirited Away, active, animation
+1. Inception, unwatched, movie
+2. Breaking Bad, watched, series
+3. Spirited Away, unwatched, animation
 
 ## How to run
 cd frontend
@@ -41,8 +41,11 @@ The list is rendered from the data, through two components:
 
 ## Extra: catalog and My List
 Beyond the guide, the interface has two panels:
-- **Catalog** (`Catalog`, `CatalogItem`): about 68 movies, series and animations grouped by category (Action, Comedy, Drama, Romance, Thriller, SF), each with an "Add" button. The first three titles are the sample data above; the catalog lives in `frontend/src/data/catalog.js`.
-- **My List**: the titles added from the catalog. The status can be toggled between Active and Done, and a title can be removed. The list is kept in `localStorage`, so it survives a page reload. The data logic (`adaugaInLista`, `comutaVazut`, `stergeFilm`) is in `frontend/src/logica.js`, reused from stage 2.
+- **Catalog** (`Catalog`, `CatalogItem`): about 190 titles, including recent ones. A search box and category chips (Action, Comedy, Drama, Romance, Thriller, SF) filter the list, there is one tab per format (Movies, Series, Animation), and the titles in a tab are grouped by category. The first three titles are the sample data above; the catalog lives in `frontend/src/data/catalog.js`.
+- **My List**: the titles added from the catalog or typed in with the "Custom title" form (`AddForm`: title up to 100 characters, format, category). The status can be toggled between Unwatched and Watched; once a title is watched it can be rated with 1-5 stars (`Stars`). The list can be sorted by Order added, Unwatched first or Watched first, and a title can be removed. The list is kept in `localStorage`, so it survives a page reload.
+- **Random pick** (`RandomPick`): a dialog that asks for a format, then a category (or "Surprise me") and suggests a random title that has not been watched yet, which can be added to My List.
+
+The data logic (`adaugaInLista`, `comutaVazut`, `stergeFilm`, plus the newer `seteazaRating`, `adaugaManual`, `sorteaza`, `filtreazaCatalog`, `alegeRandom`) is in `frontend/src/logica.js`, built on the functions from stage 2.
 
 ## AI usage
 | Tool | Used for |

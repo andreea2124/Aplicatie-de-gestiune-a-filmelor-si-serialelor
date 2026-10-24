@@ -1,6 +1,6 @@
 import FilmCard from "./FilmCard.jsx";
 
-export default function FilmList({ filme, onComuta, onSterge }) {
+export default function FilmList({ filme, onComuta, onSterge, onRating }) {
   if (filme.length === 0) {
     return <p className="empty">No items found.</p>;
   }
@@ -13,6 +13,7 @@ export default function FilmList({ filme, onComuta, onSterge }) {
           film={film}
           onComuta={onComuta}
           onSterge={onSterge}
+          onRating={onRating}
         />
       ))}
     </ul>

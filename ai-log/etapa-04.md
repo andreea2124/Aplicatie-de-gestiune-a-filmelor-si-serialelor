@@ -11,7 +11,7 @@
 ### 1. Studying the guide and building the components
 - Asked: Read the Stage 4 guide, list what has to change, then make the changes.
 - Got: `FilmCard.jsx`, `FilmList.jsx`, `<FilmList filme={filme} />` in `App.jsx` and the README section.
-- Changed or rejected: Kept the mockup's texts (`Active` / `Done`, `No items found.`) and CSS classes instead of the guide's. Skipped the verification table.
+- Changed or rejected: Kept the mockup's texts (`Active` / `Done` (since renamed to `Unwatched` / `Watched`), `No items found.`) and CSS classes instead of the guide's. Skipped the verification table.
 
 ### 2. Testing the special cases
 - Asked: Run the guide's tests (missing `key`, empty list, changed state).

@@ -381,11 +381,11 @@ body {
     letter-spacing: 0.05em;
 }
 
-.item-card.done {
+.item-card.watched {
     border-left-color: var(--muted);
 }
 
-.item-card.done h3 {
+.item-card.watched h3 {
     text-decoration: line-through;
     text-decoration-thickness: 2px;
     color: var(--muted);
@@ -408,7 +408,7 @@ body {
     padding: 6px 4px;
 }
 
-/* Active = "now showing", cu un indicator care pulseaza */
+/* Unwatched = "now showing", cu un indicator care pulseaza */
 .status::before {
     content: "";
     display: inline-block;
@@ -425,8 +425,8 @@ body {
     50% { opacity: 0.25; transform: scale(0.7); }
 }
 
-/* Done = stampila "vizionat" */
-.item-card.done .status {
+/* Watched = stampila "vizionat" */
+.item-card.watched .status {
     color: var(--muted);
     border: 2px solid var(--muted);
     border-radius: 4px;
@@ -434,7 +434,7 @@ body {
     opacity: 0.85;
 }
 
-.item-card.done .status::before { display: none; }
+.item-card.watched .status::before { display: none; }
 
 .badge {
     display: inline-block;

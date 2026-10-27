@@ -39,6 +39,9 @@ The list is rendered from the data, through two components:
 - `FilmList` receives the whole array and renders one card per item
 - `FilmCard` receives a single item through props and displays it
 
+## Stage 5: local state and events
+The list lives in React state (`App`). Toggling watched and removing a title work from the page through functions passed down as props (`onComuta`, `onSterge`), and the counter in the header is derived from the list, so it follows automatically. A button in the header switches between light and dark mode: the choice is kept in state and written as `data-theme` on `<html>`, and the CSS only redefines variables. The button shows a sun in light mode and a moon in dark mode. Unlike the guide, the list is not lost on refresh, because it is saved in `localStorage` (see below); the theme choice is lost and falls back to the system theme.
+
 ## Extra: catalog and My List
 Beyond the guide, the interface has two panels:
 - **Catalog** (`Catalog`, `CatalogItem`): about 190 titles, including recent ones. A search box and category chips (Action, Comedy, Drama, Romance, Thriller, SF) filter the list, there is one tab per format (Movies, Series, Animation), and the titles in a tab are grouped by category. The first three titles are the sample data above; the catalog lives in `frontend/src/data/catalog.js`.
@@ -60,3 +63,5 @@ Details per stage: see the `ai-log/` folder.
 - [x] Stage 2: data logic in JavaScript
 - [x] Stage 3: Vite and React project
 - [x] Stage 4: components rendered from data
+- [x] Stage 5: local state and events
+- [ ] Stage 6: loading data from a mock API

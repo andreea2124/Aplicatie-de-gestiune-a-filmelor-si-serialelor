@@ -27,8 +27,14 @@ function citesteLista() {
   }
 }
 
+// Tema de pornire: cea a sistemului de operare
+function temaInitiala() {
+  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+}
+
 export default function App() {
   const [filme, setFilme] = useState(citesteLista);
+  const [tema, setTema] = useState(temaInitiala);
   // cât timp rulează intrarea animată, cardurile au întârzieri pe poziție
   const [intro, setIntro] = useState(true);
   const [sortare, setSortare] = useState("adaugate");
@@ -50,6 +56,13 @@ export default function App() {
 
   const deVazut = filme.filter((f) => !f.vizionat).length;
 
+  // Comutarea temei: state-ul pentru buton, atributul data-theme pentru CSS
+  function comutaTema() {
+    const noua = tema === "dark" ? "light" : "dark";
+    setTema(noua);
+    document.documentElement.dataset.theme = noua;
+  }
+
   // Titlu adăugat de utilizator; întoarce un mesaj de eroare sau null.
   function adaugaTitluManual(date) {
     if (existaTitlu(filme, date.titlu, date.format)) return "This title is already in your list.";
@@ -63,6 +76,16 @@ export default function App() {
   return (
     <>
       <header className="app-header">
+        <button
+          type="button"
+          className="theme-toggle"
+          onClick={comutaTema}
+          aria-pressed={tema === "dark"}
+          aria-label={tema === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+          title={tema === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+        >
+          <span aria-hidden="true">{tema === "dark" ? "🌙" : "☀️"}</span>
+        </button>
         <div className="valance" aria-hidden="true"></div>
         <div className="beam" aria-hidden="true"></div>
         <div className="marquee">

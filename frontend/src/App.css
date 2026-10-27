@@ -15,6 +15,10 @@
     --velvet: #4b2a1f;
     --velvet-dark: #26140e;
     --curtain: #7a4030;
+    --sheen: rgba(255, 255, 255, 0.55);
+    --check: #fff6e6;
+    --add-hover-bg: var(--accent);
+    --add-hover-fg: #fff1d6;
 
     --c-movie: #9a4f38;
     --c-series: #5c4033;
@@ -292,7 +296,7 @@ body {
     align-items: stretch;
     min-height: 104px;
     background:
-        linear-gradient(135deg, rgba(255, 255, 255, 0.55), transparent 55%),
+        linear-gradient(135deg, var(--sheen), transparent 55%),
         var(--ticket);
     border: 1px solid var(--border);
     border-radius: 10px;
@@ -462,7 +466,7 @@ button.status:hover {
     height: 20px;
     font-size: 0.8rem;
     line-height: 1;
-    color: #fff6e6;
+    color: var(--check);
     background: var(--c-movie);
     box-shadow: none;
     animation: none;
@@ -598,8 +602,9 @@ button.status:hover {
 }
 
 .add-btn:hover:not(:disabled) {
-    background: var(--accent);
-    color: #fff1d6;
+    background: var(--add-hover-bg);
+    border-color: var(--add-hover-bg);
+    color: var(--add-hover-fg);
 }
 
 .add-btn:disabled {
@@ -1050,8 +1055,9 @@ select {
 
 /* ---------- DARK MODE ---------- */
 
+/* Tema sistemului, dacă utilizatorul nu a ales explicit tema luminoasă */
 @media (prefers-color-scheme: dark) {
-    :root {
+    :root:not([data-theme="light"]) {
         --bg: #1a1310;
         --card: #241b16;
         --ticket: #2f231c;
@@ -1062,16 +1068,61 @@ select {
         --accent-soft: #33281f;
         --border: #4d3b30;
         --shadow: rgba(0, 0, 0, 0.45);
+        --sheen: rgba(255, 255, 255, 0.04);
+        --check: #1a1310;
+        --add-hover-bg: var(--gold);
+        --add-hover-fg: #1a1310;
 
         --c-movie: #e08a6c;
         --c-series: #c9a58f;
         --c-animation: #e0b25a;
     }
-    .item-card { background: linear-gradient(135deg, rgba(255, 255, 255, 0.04), transparent 55%), var(--ticket); }
-    .item-card.watched { background: var(--ticket); }
-    .item-card.watched .status::before { color: #1a1310; }
-    .add-btn:hover:not(:disabled) { color: #1a1310; background: var(--gold); border-color: var(--gold); }
 }
+
+/* Tema aleasă din buton are prioritate față de cea a sistemului */
+:root[data-theme="dark"] {
+    --bg: #1a1310;
+    --card: #241b16;
+    --ticket: #2f231c;
+    --text: #efe2d0;
+    --muted: #b08968;
+    --accent: #a8714c;
+    --accent-dark: #e8cfae;
+    --accent-soft: #33281f;
+    --border: #4d3b30;
+    --shadow: rgba(0, 0, 0, 0.45);
+    --sheen: rgba(255, 255, 255, 0.04);
+    --check: #1a1310;
+    --add-hover-bg: var(--gold);
+    --add-hover-fg: #1a1310;
+
+    --c-movie: #e08a6c;
+    --c-series: #c9a58f;
+    --c-animation: #e0b25a;
+}
+
+/* ---------- BUTON TEMĂ ---------- */
+
+.theme-toggle {
+    position: absolute;
+    top: 14px;
+    right: 16px;
+    z-index: 5;
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border: 2px solid var(--gold);
+    border-radius: 50%;
+    background: transparent;
+    color: #fff1d6;
+    font-size: 1.1rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+.theme-toggle:hover { background: rgba(216, 168, 88, 0.25); }
 
 /* ---------- ACCESIBILITATE ---------- */
 

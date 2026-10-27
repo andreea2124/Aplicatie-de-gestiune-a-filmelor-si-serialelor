@@ -8,6 +8,7 @@ import {
   adaugaInLista,
   adaugaManual,
   comutaVazut,
+  completeazaDinCatalog,
   existaTitlu,
   idNou,
   seteazaRating,
@@ -145,7 +146,7 @@ export default function App() {
             />
           )}
           <FilmList
-            filme={sorteaza(filme, sortare)}
+            filme={sorteaza(completeazaDinCatalog(filme, catalog), sortare)}
             onComuta={(id) => setFilme((lista) => comutaVazut(lista, id))}
             onSterge={(id) => setFilme((lista) => stergeFilm(lista, id))}
             onRating={(id, n) => setFilme((lista) => seteazaRating(lista, id, n))}

@@ -13,6 +13,9 @@ dist
 dist-ssr
 *.local
 
+# Datasetul IMDb descărcat de scripts/build-catalog.mjs (~290 MB) și rezultatul intermediar
+scripts/imdb/
+
 # Environment variables
 .env
 .env.*

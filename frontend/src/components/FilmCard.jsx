@@ -1,11 +1,16 @@
 // Un singur film din listă, primit prin props, afișat ca un bilet de cinema.
 // onComuta / onSterge / onRating sunt opționale: fără ele, cardul doar afișează.
+import { useState } from "react";
+import { areDetalii } from "../logica.js";
+import Detalii from "./Detalii.jsx";
 import Stars from "./Stars.jsx";
 
 const ETICHETE_TIP = { movie: "Movie", series: "Series", animation: "Animation" };
 
 export default function FilmCard({ film, onComuta, onSterge, onRating }) {
   const stare = film.vizionat ? "Watched" : "Unwatched";
+  const [deschis, setDeschis] = useState(false);
+  const idDetalii = `detalii-lista-${film.id}`;
 
   return (
     <li className={film.vizionat ? "item-card watched" : "item-card"}>
@@ -24,6 +29,20 @@ export default function FilmCard({ film, onComuta, onSterge, onRating }) {
             titlu={film.titlu}
             onSeteaza={(n) => onRating(film.id, n)}
           />
+        )}
+        {areDetalii(film) && (
+          <>
+            <button
+              type="button"
+              className="expand-link"
+              onClick={() => setDeschis((d) => !d)}
+              aria-expanded={deschis}
+              aria-controls={idDetalii}
+            >
+              Details <i aria-hidden="true">▼</i>
+            </button>
+            <Detalii id={idDetalii} titlu={film} deschis={deschis} />
+          </>
         )}
       </div>
       <div className="ticket-stub">

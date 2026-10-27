@@ -1135,3 +1135,106 @@ select {
     }
     .marquee { opacity: 1; }
 }
+
+/* ---------- DETALII (durată, sezoane, descriere) ---------- */
+
+.catalog-item { flex-wrap: wrap; }
+.catalog-title { flex: 1; min-width: 0; }
+
+.expand-btn {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    display: grid;
+    place-items: center;
+    padding: 0;
+    border: 1.5px solid var(--border);
+    border-radius: 50%;
+    background: transparent;
+    color: var(--accent-dark);
+    font-size: 0.7rem;
+    cursor: pointer;
+    transition: transform 0.25s ease, background 0.2s;
+}
+.expand-btn:hover { background: var(--accent-soft); }
+.expand-btn[aria-expanded="true"] { transform: rotate(180deg); }
+
+.details {
+    flex-basis: 100%;
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.3s ease;
+}
+.details.open { grid-template-rows: 1fr; }
+.details > div { overflow: hidden; }
+
+.details-body {
+    padding: 10px 4px 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.facts { display: flex; flex-wrap: wrap; gap: 6px; }
+.fact {
+    padding: 3px 9px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--accent-soft);
+    color: var(--accent-dark);
+    font-size: 0.72rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+.overview {
+    margin: 0;
+    font-size: 0.86rem;
+    line-height: 1.55;
+    color: var(--text);
+}
+
+.season-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 4px 14px;
+    font-size: 0.78rem;
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+}
+.season-list li {
+    display: flex;
+    justify-content: space-between;
+    padding: 2px 0;
+    border-bottom: 1px dotted var(--border);
+}
+.season-list b { color: var(--text); font-weight: 600; }
+
+.source { margin: 0; font-size: 0.72rem; color: var(--muted); }
+.source a { color: var(--accent); }
+.source a:hover { color: var(--accent-dark); }
+
+/* în biletul din My List */
+.ticket-main .expand-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--accent);
+    cursor: pointer;
+}
+.ticket-main .expand-link:hover { color: var(--accent-dark); text-decoration: underline; }
+.ticket-main .expand-link i { font-style: normal; font-size: 0.65rem; transition: transform 0.25s; }
+.ticket-main .expand-link[aria-expanded="true"] i { transform: rotate(180deg); }
+.ticket-main .details { flex-basis: auto; width: 100%; }
+.ticket-main .details-body { padding: 6px 0 0; }

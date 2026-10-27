@@ -71,3 +71,25 @@ export function alegeRandom(candidati, exclusId, rng = Math.random) {
   const optiuni = candidati.length > 1 ? candidati.filter((t) => t.id !== exclusId) : candidati;
   return optiuni.length ? optiuni[Math.floor(rng() * optiuni.length)] : null;
 }
+
+// Completează elementele din listă cu datele din catalog (durată, sezoane, descriere),
+// ca să apară și pentru titlurile salvate înainte să existe aceste câmpuri.
+export function completeazaDinCatalog(lista, catalog) {
+  return lista.map((f) => {
+    const t = catalog.find((c) => c.id === f.id);
+    return t ? { ...t, ...f } : f;
+  });
+}
+
+// Are titlul ceva de arătat în panoul de detalii?
+export function areDetalii(t) {
+  return Boolean(t.descriere || t.durata || t.sezoane);
+}
+
+// 148 -> "2h 28m", 120 -> "2h", 45 -> "45m"
+export function formateazaDurata(minute) {
+  const h = Math.floor(minute / 60);
+  const m = minute % 60;
+  if (h === 0) return `${m}m`;
+  return m === 0 ? `${h}h` : `${h}h ${m}m`;
+}

@@ -3,7 +3,8 @@ import AddForm from "./components/AddForm.jsx";
 import Catalog from "./components/Catalog.jsx";
 import FilmList from "./components/FilmList.jsx";
 import RandomPick from "./components/RandomPick.jsx";
-import { CATEGORII, FORMATE, catalog } from "./data/catalog.js";
+import { fetchFilme } from "./api.js";
+import { CATEGORII, FORMATE } from "./data/catalog.js";
 import {
   adaugaInLista,
   adaugaManual,
@@ -41,6 +42,30 @@ export default function App() {
   const [sortare, setSortare] = useState("adaugate");
   const [formular, setFormular] = useState(false);
   const [random, setRandom] = useState(false);
+  // catalogul vine de la API: se încarcă, a reușit sau a eșuat
+  const [catalog, setCatalog] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    let ignore = false; // nu se setează state dacă pagina s-a închis între timp
+
+    async function load() {
+      try {
+        const data = await fetchFilme();
+        if (!ignore) setCatalog(data);
+      } catch (err) {
+        if (!ignore) setError(err.message);
+      } finally {
+        if (!ignore) setLoading(false);
+      }
+    }
+
+    load();
+    return () => {
+      ignore = true;
+    };
+  }, []);
 
   useEffect(() => {
     try {
@@ -107,51 +132,67 @@ export default function App() {
       <div className="filmstrip" aria-hidden="true"></div>
 
       <main className={intro ? "container intro" : "container"}>
-        <section className="panel panel-catalog">
-          <h2>Catalog</h2>
-          <Catalog
-            catalog={catalog}
-            categorii={CATEGORII}
-            formate={FORMATE}
-            idsInLista={filme.map((f) => f.id)}
-            onAdauga={(titlu) => setFilme((lista) => adaugaInLista(lista, titlu))}
-          />
-        </section>
+        {loading && (
+          <section className="panel">
+            <p className="info">Loading the list...</p>
+          </section>
+        )}
+        {error && (
+          <section className="panel">
+            <p className="error">
+              Could not load the data: {error}. Is <code>npm run api</code> running?
+            </p>
+          </section>
+        )}
+        {!loading && !error && (
+          <>
+            <section className="panel panel-catalog">
+              <h2>Catalog</h2>
+              <Catalog
+                catalog={catalog}
+                categorii={CATEGORII}
+                formate={FORMATE}
+                idsInLista={filme.map((f) => f.id)}
+                onAdauga={(titlu) => setFilme((lista) => adaugaInLista(lista, titlu))}
+              />
+            </section>
 
-        <section className="panel panel-lista">
-          <h2>My List</h2>
-          <div className="list-toolbar">
-            {filme.length > 1 && (
-              <label className="sort-label">
-                Sort
-                <select value={sortare} onChange={(e) => setSortare(e.target.value)}>
-                  <option value="adaugate">Order added</option>
-                  <option value="nevazute">Unwatched first</option>
-                  <option value="vazute">Watched first</option>
-                </select>
-              </label>
-            )}
-            {!formular && (
-              <button type="button" className="btn" onClick={() => setFormular(true)}>
-                + Custom title
-              </button>
-            )}
-          </div>
-          {formular && (
-            <AddForm
-              categorii={CATEGORII}
-              formate={FORMATE}
-              onAdauga={adaugaTitluManual}
-              onInchide={() => setFormular(false)}
-            />
-          )}
-          <FilmList
-            filme={sorteaza(completeazaDinCatalog(filme, catalog), sortare)}
-            onComuta={(id) => setFilme((lista) => comutaVazut(lista, id))}
-            onSterge={(id) => setFilme((lista) => stergeFilm(lista, id))}
-            onRating={(id, n) => setFilme((lista) => seteazaRating(lista, id, n))}
-          />
-        </section>
+            <section className="panel panel-lista">
+              <h2>My List</h2>
+              <div className="list-toolbar">
+                {filme.length > 1 && (
+                  <label className="sort-label">
+                    Sort
+                    <select value={sortare} onChange={(e) => setSortare(e.target.value)}>
+                      <option value="adaugate">Order added</option>
+                      <option value="nevazute">Unwatched first</option>
+                      <option value="vazute">Watched first</option>
+                    </select>
+                  </label>
+                )}
+                {!formular && (
+                  <button type="button" className="btn" onClick={() => setFormular(true)}>
+                    + Custom title
+                  </button>
+                )}
+              </div>
+              {formular && (
+                <AddForm
+                  categorii={CATEGORII}
+                  formate={FORMATE}
+                  onAdauga={adaugaTitluManual}
+                  onInchide={() => setFormular(false)}
+                />
+              )}
+              <FilmList
+                filme={sorteaza(completeazaDinCatalog(filme, catalog), sortare)}
+                onComuta={(id) => setFilme((lista) => comutaVazut(lista, id))}
+                onSterge={(id) => setFilme((lista) => stergeFilm(lista, id))}
+                onRating={(id, n) => setFilme((lista) => seteazaRating(lista, id, n))}
+              />
+            </section>
+          </>
+        )}
       </main>
 
       <footer className="app-footer">Web Technologies Project</footer>

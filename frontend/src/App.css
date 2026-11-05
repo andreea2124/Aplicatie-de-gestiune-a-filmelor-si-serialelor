@@ -6,6 +6,8 @@
     --ticket: #f7ecd9;
     --text: #34211a;
     --muted: #8c705f;
+    --error-bg: #fdf2f8;
+    --error-border: #fbcfe8;
     --accent: #7a4e37;
     --accent-dark: #3a2218;
     --accent-soft: #ecdcc4;
@@ -1063,6 +1065,8 @@ select {
         --ticket: #2f231c;
         --text: #efe2d0;
         --muted: #b08968;
+        --error-bg: #3b1d2e;
+        --error-border: #6b2a4a;
         --accent: #a8714c;
         --accent-dark: #e8cfae;
         --accent-soft: #33281f;
@@ -1086,6 +1090,8 @@ select {
     --ticket: #2f231c;
     --text: #efe2d0;
     --muted: #b08968;
+    --error-bg: #3b1d2e;
+    --error-border: #6b2a4a;
     --accent: #a8714c;
     --accent-dark: #e8cfae;
     --accent-soft: #33281f;
@@ -1238,3 +1244,14 @@ select {
 .ticket-main .expand-link[aria-expanded="true"] i { transform: rotate(180deg); }
 .ticket-main .details { flex-basis: auto; width: 100%; }
 .ticket-main .details-body { padding: 6px 0 0; }
+
+/* Etapa 6: stări de încărcare și de eroare */
+.info { color: var(--muted); }
+
+.error {
+    color: #b3402f;
+    background: var(--error-bg);
+    border: 1px solid var(--error-border);
+    border-radius: 8px;
+    padding: 10px 12px;
+}

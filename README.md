@@ -72,6 +72,7 @@ Details per stage: see the `ai-log/` folder.
 - [x] Stage 4: components rendered from data
 - [x] Stage 5: local state and events
 - [x] Stage 6: data from a mock API
+- [ ] Stage 7: form and validation
 
 ## Stage 1: checklist
 - [x] **S1-R1** The theme is approved, and the README has the description, the fields, the sample data and how to run.
@@ -81,7 +82,7 @@ Details per stage: see the `ai-log/` folder.
 - [x] **S1-R5** One card is clearly marked as finished.
 - [x] **S1-R6** Two columns on desktop, one column under 700 px.
 - [x] **S1-R7** The focus is visible with Tab, and the dark theme is readable.
-- [ ] **S1-R8** The code is published on GitHub, in a public repository, with the commit `Stage 1: ...`.
+- [x] **S1-R8** The code is published on GitHub, in a public repository, with the commit `Stage 1: ...`.
 
 ## Stage 2: checklist
 - [x] **S2-R1** The JavaScript file is linked to the page and logs to the console when the page opens.
@@ -90,7 +91,7 @@ Details per stage: see the `ai-log/` folder.
 - [x] **S2-R4** Adding rejects the empty name and the invalid tag, with a console message.
 - [x] **S2-R5** The original array stays unchanged after adding, shown in the console.
 - [x] **S2-R6** The README has the Stage 2 section, and `ai-log/etapa-02.md` is filled in.
-- [ ] **S2-R7** The commit `Stage 2: ...` is published on GitHub.
+- [x] **S2-R7** The commit `Stage 2: ...` is published on GitHub.
 
 ## Stage 3: checklist
 - [x] **S3-R1** `npm run dev` starts without errors.
@@ -99,7 +100,7 @@ Details per stage: see the `ai-log/` folder.
 - [x] **S3-R4** The stage 1 styles are present in the app.
 - [x] **S3-R5** `node_modules/` is not on GitHub, and `npm run build` runs without errors.
 - [x] **S3-R6** The README is updated, and `ai-log/etapa-03.md` is filled in.
-- [ ] **S3-R7** The commit `Stage 3: ...` is published on GitHub.
+- [x] **S3-R7** The commit `Stage 3: ...` is published on GitHub.
 
 ## Stage 4: checklist
 - [x] **S4-R1** There are at least two components in `src/components/`, one per file.
@@ -108,7 +109,7 @@ Details per stage: see the `ai-log/` folder.
 - [x] **S4-R4** The empty list shows a message.
 - [x] **S4-R5** The item's state changes the look of the card.
 - [x] **S4-R6** The README is updated, and `ai-log/etapa-04.md` is filled in.
-- [ ] **S4-R7** The commit `Stage 4: ...` is published on GitHub.
+- [x] **S4-R7** The commit `Stage 4: ...` is published on GitHub.
 
 ## Stage 5: checklist
 - [x] **S5-R1** The list is kept in `useState`, in the parent component.
@@ -118,12 +119,12 @@ Details per stage: see the `ai-log/` folder.
 - [x] **S5-R5** Updates are immutable: no `push`, `splice` or assignments on state items.
 - [x] **S5-R6** The header button switches between the light and the dark theme, in both directions, whatever the system theme is.
 - [x] **S5-R7** The console has no warnings; the README and `ai-log/etapa-05.md` are updated.
-- [ ] **S5-R8** The commit `Stage 5: ...` is published on GitHub.
+- [x] **S5-R8** The commit `Stage 5: ...` is published on GitHub.
 
 ## Stage 6: checklist
 - [x] **S6-R1** `npm run api` starts, and the resource route shows JSON in the browser.
 - [x] **S6-R2** The data is no longer written in the React code.
-- [ ] **S6-R3** The loading message appears while loading.
+- [x] **S6-R3** The loading message appears while loading.
 - [x] **S6-R4** With the API stopped, the error message appears, not a blank page.
 - [x] **S6-R5** `fetch` appears only in `api.js`, and the API address is read from the environment variable.
 - [x] **S6-R6** The README has the stage section, and `ai-log/etapa-06.md` is filled in.

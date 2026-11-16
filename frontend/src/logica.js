@@ -1,13 +1,28 @@
 // Logica de date pentru My List (imutabilă), preluată din mockup/filme.js (Etapa 2).
+// Din Etapa 7 lista stă pe server (resursa /lista): id-urile le dă serverul,
+// iar aici rămân doar funcțiile care pregătesc datele și actualizează state-ul.
 
-// Adaugă un titlu din catalog în listă, o singură dată; nu modifică lista primită.
-export function adaugaInLista(lista, titlu) {
-  if (lista.some((f) => f.id === titlu.id)) return lista;
-  return [...lista, { ...titlu, vizionat: false, rating: 0 }];
+// Elementul trimis la server când se adaugă un titlu din catalog: doar referința
+// (catalogId) și câmpurile de bază; detaliile se iau din catalog la afișare.
+export function dinCatalog(titlu) {
+  return {
+    catalogId: titlu.id,
+    titlu: titlu.titlu,
+    format: titlu.format,
+    categorie: titlu.categorie,
+    vizionat: false,
+    rating: 0,
+  };
 }
 
-export function comutaVazut(lista, id) {
-  return lista.map((f) => (f.id === id ? { ...f, vizionat: !f.vizionat } : f));
+// Elementul trimis la server pentru un titlu scris de utilizator în formular.
+export function dinFormular({ titlu, format, categorie }) {
+  return { titlu, format, categorie, vizionat: false, rating: 0, manual: true };
+}
+
+// Înlocuiește în listă elementul cu același id cu cel întors de server.
+export function inlocuieste(lista, element) {
+  return lista.map((f) => (f.id === element.id ? element : f));
 }
 
 export function stergeFilm(lista, id) {
@@ -15,20 +30,13 @@ export function stergeFilm(lista, id) {
 }
 
 // Rating 1-5; apăsarea aceleiași valori scoate ratingul (revine la 0).
-export function seteazaRating(lista, id, rating) {
-  return lista.map((f) =>
-    f.id === id ? { ...f, rating: f.rating === rating ? 0 : rating } : f,
-  );
+export function ratingNou(curent, ales) {
+  return curent === ales ? 0 : ales;
 }
 
-// Id pentru titlurile adăugate manual: max + 1, dar începând de la 1000,
-// ca să nu se ciocnească cu id-urile din catalog.
-export function idNou(...liste) {
-  return liste.flat().reduce((max, f) => Math.max(max, f.id), 1000) + 1;
-}
-
-export function adaugaManual(lista, id, { titlu, format, categorie }) {
-  return [...lista, { id, titlu, format, categorie, vizionat: false, rating: 0, manual: true }];
+// Id-urile din catalog ale titlurilor aflate deja în listă.
+export function idsDinCatalog(lista) {
+  return lista.filter((f) => f.catalogId != null).map((f) => f.catalogId);
 }
 
 // Există deja un titlu cu același nume și format? (fără diferență de majuscule)
@@ -53,30 +61,34 @@ export function filtreazaCatalog(catalog, text, categorie) {
   );
 }
 
-// Candidații pentru Random pick: titlurile din catalog și din listă cu formatul
-// (și categoria, dacă e aleasă) cerute, fără cele deja văzute.
+// Candidații pentru Random pick: titlurile din catalog și cele adăugate manual în listă,
+// cu formatul (și categoria, dacă e aleasă) cerute, fără cele deja văzute.
 export function candidatiRecomandare(catalog, lista, format, categorie) {
-  const vazute = new Set(lista.filter((f) => f.vizionat).map((f) => f.id));
-  const doarInLista = lista.filter((f) => !catalog.some((t) => t.id === f.id));
-  return [...catalog, ...doarInLista].filter(
-    (t) =>
-      t.format === format &&
-      (!categorie || t.categorie === categorie) &&
-      !vazute.has(t.id),
+  const vazute = new Set(idsDinCatalog(lista.filter((f) => f.vizionat)));
+  const manuale = lista.filter((f) => f.catalogId == null && !f.vizionat);
+  return [...catalog.filter((t) => !vazute.has(t.id)), ...manuale].filter(
+    (t) => t.format === format && (!categorie || t.categorie === categorie),
   );
 }
 
-// Alege la întâmplare un candidat; dacă sunt mai mulți, evită titlul `exclusId`.
-export function alegeRandom(candidati, exclusId, rng = Math.random) {
-  const optiuni = candidati.length > 1 ? candidati.filter((t) => t.id !== exclusId) : candidati;
+// Id-urile din catalog și cele din listă pot coincide, deci un candidat
+// se recunoaște după sursă + id.
+const cheieCandidat = (t) => (t.manual ? `lista-${t.id}` : `catalog-${t.id}`);
+
+// Alege la întâmplare un candidat; dacă sunt mai mulți, evită titlul `exclus`.
+export function alegeRandom(candidati, exclus, rng = Math.random) {
+  const optiuni =
+    candidati.length > 1 && exclus
+      ? candidati.filter((t) => cheieCandidat(t) !== cheieCandidat(exclus))
+      : candidati;
   return optiuni.length ? optiuni[Math.floor(rng() * optiuni.length)] : null;
 }
 
-// Completează elementele din listă cu datele din catalog (durată, sezoane, descriere),
-// ca să apară și pentru titlurile salvate înainte să existe aceste câmpuri.
+// Completează elementele din listă cu datele din catalog (durată, sezoane, descriere);
+// pe server se salvează doar catalogId, nu și detaliile. Id-ul rămâne cel din listă.
 export function completeazaDinCatalog(lista, catalog) {
   return lista.map((f) => {
-    const t = catalog.find((c) => c.id === f.id);
+    const t = f.catalogId != null && catalog.find((c) => c.id === f.catalogId);
     return t ? { ...t, ...f } : f;
   });
 }

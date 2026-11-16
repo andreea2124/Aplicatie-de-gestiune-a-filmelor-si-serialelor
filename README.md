@@ -41,7 +41,7 @@ The list is rendered from the data, through two components:
 - `FilmCard` receives a single item through props and displays it
 
 ## Stage 5: local state and events
-The list lives in React state (`App`). Toggling watched and removing a title work from the page through functions passed down as props (`onComuta`, `onSterge`), and the counter in the header is derived from the list, so it follows automatically. A button in the header switches between light and dark mode: the choice is kept in state and written as `data-theme` on `<html>`, and the CSS only redefines variables. The button shows a sun in light mode and a moon in dark mode. Unlike the guide, the list is not lost on refresh, because it is saved in `localStorage` (see below); the theme choice is lost and falls back to the system theme.
+The list lives in React state (`App`). Toggling watched and removing a title work from the page through functions passed down as props (`onComuta`, `onSterge`), and the counter in the header is derived from the list, so it follows automatically. A button in the header switches between light and dark mode: the choice is kept in state and written as `data-theme` on `<html>`, and the CSS only redefines variables. The button shows a sun in light mode and a moon in dark mode. Unlike the guide, the list was not lost on refresh, because it was saved in `localStorage` (since stage 7 it is saved on the server); the theme choice is lost and falls back to the system theme.
 
 ## Stage 6: data from a mock API
 The catalog (190 titles) is no longer written in the React code: it is served by json-server from `frontend/db.json` (resource `filme`, route `/filme`). The app fetches it on load, through `fetchFilme` in `src/api.js` (the only place with `fetch`; the address comes from `VITE_API_URL`, see `.env.example`), and shows a loading message, the list, or an error message that says to run `npm run api`. My List stays in `localStorage`; moving it to the server is for stage 7.
@@ -49,19 +49,28 @@ The catalog (190 titles) is no longer written in the React code: it is served by
     npm run api   # terminal 1, http://localhost:3001
     npm run dev   # terminal 2, http://localhost:5173
 
+## Stage 7: form and validation
+Titles can be added from the page. The form (`FilmForm`) is controlled and validated, and every change (add, toggle, rating, delete) goes to the API before it shows up in the list.
+- My List moved from `localStorage` to the server: resource `lista` in `frontend/db.json` (route `/lista`), next to the read-only catalog `filme`. The ids are given by json-server, never by the frontend.
+- `src/api.js` has a common `request` function (JSON header, error on a non-2xx answer, no body on 204) and `fetchLista`, `createFilm` (POST), `updateFilm` (PATCH), `deleteFilm` (DELETE).
+- The form is always visible above My List: title (required, at most 100 characters, not already in the list or in the catalog), format and category. The errors are shown under the fields, not with `alert`. While saving, the button is disabled and says "Saving..."; the fields are cleared only after the server confirms, so the typed text is kept when the API is down.
+- A title added from the catalog is saved as a reference (`catalogId`) plus its basic fields; the runtime, seasons and description are still read from the catalog.
+- If a toggle, rating or delete fails, an error appears above the list and the list stays on screen.
+- `tw.json` (repository root) and the `data-testid` attributes (`form`, `form-title`, `form-format`, `form-categorie`, `form-submit`, `form-error`, `item`, `item-title`, `item-toggle`, `item-delete`, `empty`, `loading`, `error`) mark the elements for the automatic check. The Watched / Unwatched stamp is now a real checkbox, styled like before.
+
 ## Extra: catalog and My List
 Beyond the guide, the interface has two panels:
 - **Catalog** (`Catalog`, `CatalogItem`): about 190 titles, including recent ones. A search box and category chips (Action, Comedy, Drama, Romance, Thriller, SF) filter the list, there is one tab per format (Movies, Series, Animation), and the titles in a tab are grouped by category. Each title has a "Show details" panel (`Detalii`) with the year, category, runtime or seasons and episodes, a short description and a link to IMDb. The first three titles are the sample data above; the catalog is served from `frontend/db.json` (see stage 6), while the categories and formats are constants in `frontend/src/data/catalog.js`.
-- **My List**: the titles added from the catalog or typed in with the "Custom title" form (`AddForm`: title up to 100 characters, format, category). The status can be toggled between Unwatched and Watched; once a title is watched it can be rated with 1-5 stars (`Stars`). The list can be sorted by Order added, Unwatched first or Watched first, and a title can be removed. The list is kept in `localStorage`, so it survives a page reload.
+- **My List**: the titles added from the catalog or typed in with the "Add a custom title" form (`FilmForm`, see stage 7). The status can be toggled between Unwatched and Watched; once a title is watched it can be rated with 1-5 stars (`Stars`). The list can be sorted by Order added, Unwatched first or Watched first, and a title can be removed. The list is saved on the server (see stage 7), so it survives a page reload.
 - **Random pick** (`RandomPick`): a dialog that asks for a format, then a category (or "Surprise me") and suggests a random title that has not been watched yet, which can be added to My List.
 
-The data logic (`adaugaInLista`, `comutaVazut`, `stergeFilm`, plus the newer `seteazaRating`, `adaugaManual`, `sorteaza`, `filtreazaCatalog`, `alegeRandom`) is in `frontend/src/logica.js`, built on the functions from stage 2.
+The data logic (`stergeFilm`, `inlocuieste`, `dinCatalog`, `dinFormular`, `ratingNou`, `sorteaza`, `filtreazaCatalog`, `alegeRandom`) is in `frontend/src/logica.js`, built on the functions from stage 2; since stage 7 the changes are made on the server first, and these functions only prepare the data and update the state.
 
 ## AI usage
 | Tool | Used for |
 | ---- | -------- |
 | ChatGPT / Gemini | Structuring the README file and adapting the data model for movies and series. |
-| Claude Code | Reviewing the project against each stage guide, fixing the React app to match the mockup, and building the catalog, My List, title details and the mock API (stage 6). |
+| Claude Code | Reviewing the project against each stage guide, fixing the React app to match the mockup, and building the catalog, My List, title details, the mock API (stage 6) and the form with server saving (stage 7). |
 
 Details per stage: see the `ai-log/` folder.
 
@@ -72,7 +81,8 @@ Details per stage: see the `ai-log/` folder.
 - [x] Stage 4: components rendered from data
 - [x] Stage 5: local state and events
 - [x] Stage 6: data from a mock API
-- [ ] Stage 7: form and validation
+- [x] Stage 7: form and validation
+- [ ] Stage 8: routing and detail page
 
 ## Stage 1: checklist
 - [x] **S1-R1** The theme is approved, and the README has the description, the fields, the sample data and how to run.
@@ -128,4 +138,4 @@ Details per stage: see the `ai-log/` folder.
 - [x] **S6-R4** With the API stopped, the error message appears, not a blank page.
 - [x] **S6-R5** `fetch` appears only in `api.js`, and the API address is read from the environment variable.
 - [x] **S6-R6** The README has the stage section, and `ai-log/etapa-06.md` is filled in.
-- [ ] **S6-R7** The commit `Stage 6: ...` is published on GitHub.
+- [x] **S6-R7** The commit `Stage 6: ...` is published on GitHub.

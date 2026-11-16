@@ -4,7 +4,16 @@ import { alegeRandom, candidatiRecomandare } from "../logica.js";
 const ETICHETE_TIP = { movie: "Movie", series: "Series", animation: "Animation" };
 
 // Fereastra "Random pick": întâi formatul, apoi categoria, apoi recomandarea.
-export default function RandomPick({ catalog, lista, categorii, formate, onAdauga, onInchide }) {
+// idsInLista = id-urile din catalog ale titlurilor deja adăugate (sau în curs de adăugare).
+export default function RandomPick({
+  catalog,
+  lista,
+  idsInLista,
+  categorii,
+  formate,
+  onAdauga,
+  onInchide,
+}) {
   const dialog = useRef(null);
   const [format, setFormat] = useState(null);
   const [categorie, setCategorie] = useState(null); // "" = orice categorie
@@ -21,7 +30,8 @@ export default function RandomPick({ catalog, lista, categorii, formate, onAdaug
     setTitlu(alegeRandom(candidati(format, c)));
   }
 
-  const inLista = titlu && lista.some((f) => f.id === titlu.id);
+  // titlurile manuale vin chiar din listă; cele din catalog se caută după catalogId
+  const inLista = titlu && (titlu.manual || idsInLista.includes(titlu.id));
 
   return (
     <dialog ref={dialog} className="random-dialog" onClose={onInchide}>
@@ -88,7 +98,7 @@ export default function RandomPick({ catalog, lista, categorii, formate, onAdaug
             <button
               type="button"
               className="btn"
-              onClick={() => setTitlu(alegeRandom(candidati(format, categorie), titlu.id))}
+              onClick={() => setTitlu(alegeRandom(candidati(format, categorie), titlu))}
             >
               Pick another
             </button>

@@ -2289,5 +2289,25 @@
       "descriere": "Kenzou Tenma, a Japanese brain surgeon in Germany, had it all: incredible skill at his work, a rich and beautiful fiancee, and a promising career at his hospital. However, after becoming disenchanted by hospital politics, he chose to save the life of a young boy who got shot in the head over the life of the mayor.",
       "imdb": "tt0434706"
     }
+  ],
+  "lista": [
+    {
+      "catalogId": 144,
+      "titlu": "The Summer I Turned Pretty",
+      "format": "series",
+      "categorie": "Romance",
+      "vizionat": true,
+      "rating": 5,
+      "id": 1
+    },
+    {
+      "titlu": "TVD",
+      "format": "series",
+      "categorie": "Drama",
+      "vizionat": true,
+      "rating": 5,
+      "manual": true,
+      "id": 2
+    }
   ]
 }

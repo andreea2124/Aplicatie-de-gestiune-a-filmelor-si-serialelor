@@ -1,33 +1,21 @@
 import { useEffect, useState } from "react";
-import AddForm from "./components/AddForm.jsx";
 import Catalog from "./components/Catalog.jsx";
+import FilmForm from "./components/FilmForm.jsx";
 import FilmList from "./components/FilmList.jsx";
 import RandomPick from "./components/RandomPick.jsx";
-import { fetchFilme } from "./api.js";
+import { createFilm, deleteFilm, fetchFilme, fetchLista, updateFilm } from "./api.js";
 import { CATEGORII, FORMATE } from "./data/catalog.js";
 import {
-  adaugaInLista,
-  adaugaManual,
-  comutaVazut,
   completeazaDinCatalog,
+  dinCatalog,
+  dinFormular,
   existaTitlu,
-  idNou,
-  seteazaRating,
+  idsDinCatalog,
+  inlocuieste,
+  ratingNou,
   sorteaza,
   stergeFilm,
 } from "./logica.js";
-
-const CHEIE_LISTA = "plot-my-list";
-
-// My List se păstrează în localStorage; dacă nu e disponibil, pornește goală.
-function citesteLista() {
-  try {
-    const salvat = JSON.parse(localStorage.getItem(CHEIE_LISTA));
-    return Array.isArray(salvat) ? salvat : [];
-  } catch {
-    return [];
-  }
-}
 
 // Tema de pornire: cea a sistemului de operare
 function temaInitiala() {
@@ -35,25 +23,33 @@ function temaInitiala() {
 }
 
 export default function App() {
-  const [filme, setFilme] = useState(citesteLista);
+  // My List vine de la server (resursa /lista); catalogul tot de la server (/filme)
+  const [filme, setFilme] = useState([]);
+  const [catalog, setCatalog] = useState([]);
   const [tema, setTema] = useState(temaInitiala);
   // cât timp rulează intrarea animată, cardurile au întârzieri pe poziție
   const [intro, setIntro] = useState(true);
   const [sortare, setSortare] = useState("adaugate");
-  const [formular, setFormular] = useState(false);
   const [random, setRandom] = useState(false);
-  // catalogul vine de la API: se încarcă, a reușit sau a eșuat
-  const [catalog, setCatalog] = useState([]);
   const [loading, setLoading] = useState(true);
+  // eroarea de la încărcare (pagina nu are ce arăta) și eroarea unei acțiuni (lista rămâne)
   const [error, setError] = useState(null);
+  const [eroareActiune, setEroareActiune] = useState(null);
+  // cereri în curs: id-uri din listă (bifare, rating, ștergere) și id-uri din catalog (adăugare)
+  const [idsOcupate, setIdsOcupate] = useState([]);
+  const [seAdauga, setSeAdauga] = useState([]);
 
+  // Rulează o singură dată, după prima randare: catalogul și lista, în paralel
   useEffect(() => {
     let ignore = false; // nu se setează state dacă pagina s-a închis între timp
 
     async function load() {
       try {
-        const data = await fetchFilme();
-        if (!ignore) setCatalog(data);
+        const [dateCatalog, dateLista] = await Promise.all([fetchFilme(), fetchLista()]);
+        if (!ignore) {
+          setCatalog(dateCatalog);
+          setFilme(dateLista);
+        }
       } catch (err) {
         if (!ignore) setError(err.message);
       } finally {
@@ -68,19 +64,12 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    try {
-      localStorage.setItem(CHEIE_LISTA, JSON.stringify(filme));
-    } catch {
-      // fără localStorage, lista rămâne doar în memorie
-    }
-  }, [filme]);
-
-  useEffect(() => {
     const timer = setTimeout(() => setIntro(false), 3000);
     return () => clearTimeout(timer);
   }, []);
 
   const deVazut = filme.filter((f) => !f.vizionat).length;
+  const idsInLista = [...idsDinCatalog(filme), ...seAdauga];
 
   // Comutarea temei: state-ul pentru buton, atributul data-theme pentru CSS
   function comutaTema() {
@@ -89,14 +78,65 @@ export default function App() {
     document.documentElement.dataset.theme = noua;
   }
 
-  // Titlu adăugat de utilizator; întoarce un mesaj de eroare sau null.
-  function adaugaTitluManual(date) {
-    if (existaTitlu(filme, date.titlu, date.format)) return "This title is already in your list.";
-    if (existaTitlu(catalog, date.titlu, date.format)) {
-      return "This title is already in the catalog - add it from there.";
+  // Rulează o cerere marcând cheia ca ocupată; eroarea apare deasupra listei.
+  async function cuCerere(setOcupate, cheie, actiune) {
+    setOcupate((prev) => [...prev, cheie]);
+    try {
+      await actiune();
+      setEroareActiune(null);
+    } catch (err) {
+      setEroareActiune(err.message);
+    } finally {
+      setOcupate((prev) => prev.filter((k) => k !== cheie));
     }
-    setFilme((lista) => adaugaManual(lista, idNou(lista, catalog), date));
-    return null;
+  }
+
+  // Titlu scris în formular. Întâi serverul, apoi state-ul: pe ecran ajunge doar ce
+  // s-a salvat. Nu prinde erorile: ajung înapoi în formular, care le afișează.
+  async function handleAdd(date) {
+    if (existaTitlu(filme, date.titlu, date.format)) {
+      throw new Error("This title is already in your list.");
+    }
+    if (existaTitlu(catalog, date.titlu, date.format)) {
+      throw new Error("This title is already in the catalog - add it from there.");
+    }
+    const creat = await createFilm(dinFormular(date)); // serverul întoarce elementul cu id
+    setFilme((prev) => [...prev, creat]);
+  }
+
+  // Titlu din catalog (sau din Random pick); butonul e blocat cât timp se trimite.
+  function handleAdaugaDinCatalog(titlu) {
+    if (idsInLista.includes(titlu.id)) return;
+    cuCerere(setSeAdauga, titlu.id, async () => {
+      const creat = await createFilm(dinCatalog(titlu));
+      setFilme((prev) => [...prev, creat]);
+    });
+  }
+
+  function handleToggle(id) {
+    if (idsOcupate.includes(id)) return; // o cerere pentru element e deja în curs
+    const film = filme.find((f) => f.id === id);
+    cuCerere(setIdsOcupate, id, async () => {
+      const actualizat = await updateFilm(id, { vizionat: !film.vizionat });
+      setFilme((prev) => inlocuieste(prev, actualizat));
+    });
+  }
+
+  function handleRating(id, n) {
+    if (idsOcupate.includes(id)) return; // o cerere pentru element e deja în curs
+    const film = filme.find((f) => f.id === id);
+    cuCerere(setIdsOcupate, id, async () => {
+      const actualizat = await updateFilm(id, { rating: ratingNou(film.rating ?? 0, n) });
+      setFilme((prev) => inlocuieste(prev, actualizat));
+    });
+  }
+
+  function handleDelete(id) {
+    if (idsOcupate.includes(id)) return; // o cerere pentru element e deja în curs
+    cuCerere(setIdsOcupate, id, async () => {
+      await deleteFilm(id);
+      setFilme((prev) => stergeFilm(prev, id));
+    });
   }
 
   return (
@@ -134,12 +174,14 @@ export default function App() {
       <main className={intro ? "container intro" : "container"}>
         {loading && (
           <section className="panel">
-            <p className="info">Loading the list...</p>
+            <p className="info" data-testid="loading">
+              Loading the list...
+            </p>
           </section>
         )}
         {error && (
           <section className="panel">
-            <p className="error">
+            <p className="error" data-testid="error">
               Could not load the data: {error}. Is <code>npm run api</code> running?
             </p>
           </section>
@@ -152,15 +194,21 @@ export default function App() {
                 catalog={catalog}
                 categorii={CATEGORII}
                 formate={FORMATE}
-                idsInLista={filme.map((f) => f.id)}
-                onAdauga={(titlu) => setFilme((lista) => adaugaInLista(lista, titlu))}
+                idsInLista={idsInLista}
+                onAdauga={handleAdaugaDinCatalog}
               />
             </section>
 
             <section className="panel panel-lista">
               <h2>My List</h2>
-              <div className="list-toolbar">
-                {filme.length > 1 && (
+              <FilmForm categorii={CATEGORII} formate={FORMATE} onAdd={handleAdd} />
+              {eroareActiune && (
+                <p className="error" role="alert" data-testid="error">
+                  Could not save the change: {eroareActiune}
+                </p>
+              )}
+              {filme.length > 1 && (
+                <div className="list-toolbar">
                   <label className="sort-label">
                     Sort
                     <select value={sortare} onChange={(e) => setSortare(e.target.value)}>
@@ -169,26 +217,14 @@ export default function App() {
                       <option value="vazute">Watched first</option>
                     </select>
                   </label>
-                )}
-                {!formular && (
-                  <button type="button" className="btn" onClick={() => setFormular(true)}>
-                    + Custom title
-                  </button>
-                )}
-              </div>
-              {formular && (
-                <AddForm
-                  categorii={CATEGORII}
-                  formate={FORMATE}
-                  onAdauga={adaugaTitluManual}
-                  onInchide={() => setFormular(false)}
-                />
+                </div>
               )}
               <FilmList
                 filme={sorteaza(completeazaDinCatalog(filme, catalog), sortare)}
-                onComuta={(id) => setFilme((lista) => comutaVazut(lista, id))}
-                onSterge={(id) => setFilme((lista) => stergeFilm(lista, id))}
-                onRating={(id, n) => setFilme((lista) => seteazaRating(lista, id, n))}
+                idsOcupate={idsOcupate}
+                onComuta={handleToggle}
+                onSterge={handleDelete}
+                onRating={handleRating}
               />
             </section>
           </>
@@ -201,9 +237,10 @@ export default function App() {
         <RandomPick
           catalog={catalog}
           lista={filme}
+          idsInLista={idsInLista}
           categorii={CATEGORII}
           formate={FORMATE}
-          onAdauga={(titlu) => setFilme((lista) => adaugaInLista(lista, titlu))}
+          onAdauga={handleAdaugaDinCatalog}
           onInchide={() => setRandom(false)}
         />
       )}

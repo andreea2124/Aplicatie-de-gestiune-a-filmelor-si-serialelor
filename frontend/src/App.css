@@ -408,22 +408,46 @@ body {
     color: var(--accent-dark);
 }
 
-/* statusul ca buton: reseteaza stilul implicit al butonului */
-button.status {
-    background: none;
+/* statusul ca checkbox (Etapa 7): eticheta e zona pe care se da click */
+label.status {
     border: 2px solid transparent;
     border-radius: 6px;
     cursor: pointer;
     transition: background 0.2s, border-color 0.2s;
 }
 
-button.status:hover {
+label.status:hover {
     background: var(--accent-soft);
     border-color: var(--border);
 }
 
+/* cat timp se salveaza bifa, statusul nu mai poate fi apasat */
+label.status:has(.status-check:disabled) {
+    cursor: progress;
+    opacity: 0.6;
+}
+
+/* la eticheta, indicatorul e desenat in checkbox, nu in pseudo-elementul etichetei */
+label.status::before,
+.item-card.watched label.status::before { content: none; }
+
+/* checkbox-ul ramane fix (fara animatie), ca sa poata fi apasat si de verificarea
+   automata; pulsul e pe pseudo-elementul lui */
+.status-check {
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    width: 14px;
+    height: 14px;
+    margin: 0;
+    border-radius: 50%;
+    appearance: none;
+    cursor: inherit;
+}
+
 /* Unwatched = "now showing", cu un indicator care pulseaza */
-.status::before {
+.status::before,
+.status-check::before {
     content: "";
     width: 14px;
     height: 14px;
@@ -474,7 +498,26 @@ button.status:hover {
     animation: none;
 }
 
-.item-card.watched button.status:hover {
+/* aceeasi bifa, desenata in checkbox */
+.item-card.watched .status-check {
+    width: 20px;
+    height: 20px;
+    font-size: 0.8rem;
+    line-height: 1;
+    color: var(--check);
+    background: var(--c-movie);
+}
+
+.item-card.watched .status-check::before {
+    content: "\2713";
+    width: auto;
+    height: auto;
+    background: none;
+    box-shadow: none;
+    animation: none;
+}
+
+.item-card.watched label.status:hover {
     background: transparent;
     opacity: 1;
 }
@@ -854,6 +897,26 @@ select {
     font-weight: 500;
     color: #b3402f;
 }
+
+/* Etapa 7: formularul e mereu vizibil, deasupra listei */
+.add-form-title {
+    margin: 0;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent-dark);
+}
+
+/* Etapa 7: buton dezactivat cât timp se trimite */
+.add-form button:disabled,
+.remove-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* eroarea unei acțiuni (bifare, ștergere) apare deasupra listei, lista rămâne */
+.panel-lista > .error { margin: 0 0 16px; }
 
 .stars {
     display: flex;

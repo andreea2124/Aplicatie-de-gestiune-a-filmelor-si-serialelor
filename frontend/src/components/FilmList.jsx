@@ -1,8 +1,13 @@
 import FilmCard from "./FilmCard.jsx";
 
-export default function FilmList({ filme, onComuta, onSterge, onRating }) {
+// idsOcupate = id-urile elementelor pentru care o cerere e în curs
+export default function FilmList({ filme, idsOcupate = [], onComuta, onSterge, onRating }) {
   if (filme.length === 0) {
-    return <p className="empty">No items found.</p>;
+    return (
+      <p className="empty" data-testid="empty">
+        No items found.
+      </p>
+    );
   }
 
   return (
@@ -11,6 +16,7 @@ export default function FilmList({ filme, onComuta, onSterge, onRating }) {
         <FilmCard
           key={film.id}
           film={film}
+          ocupat={idsOcupate.includes(film.id)}
           onComuta={onComuta}
           onSterge={onSterge}
           onRating={onRating}

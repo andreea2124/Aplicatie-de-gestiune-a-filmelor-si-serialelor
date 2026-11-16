@@ -141,3 +141,13 @@ Details per stage: see the `ai-log/` folder.
 - [x] **S6-R5** `fetch` appears only in `api.js`, and the API address is read from the environment variable.
 - [x] **S6-R6** The README has the stage section, and `ai-log/etapa-06.md` is filled in.
 - [x] **S6-R7** The commit `Stage 6: ...` is published on GitHub.
+
+## Stage 7: checklist
+- [x] **S7-R1** The form is controlled: every field has `value` and `onChange`.
+- [x] **S7-R2** An empty title shows an error message, and no request is sent.
+- [x] **S7-R3** The added item shows up in the list and survives a page reload.
+- [x] **S7-R4** Toggling and deleting survive a page reload.
+- [x] **S7-R5** The button is disabled while sending, and the form is cleared only when the save succeeds.
+- [x] **S7-R6** `tw.json` is in the repository root, and the elements from table 7.3 have the `data-testid` attributes.
+- [x] **S7-R7** The README has the stage section, and `ai-log/etapa-07.md` is filled in.
+- [x] **S7-R8** The commit `Stage 7: ...` is published on GitHub.

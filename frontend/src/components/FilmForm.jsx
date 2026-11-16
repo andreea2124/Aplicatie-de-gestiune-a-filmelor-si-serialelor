@@ -43,11 +43,10 @@ export default function FilmForm({ categorii, formate, onAdd }) {
 
   return (
     <form className="add-form" onSubmit={handleSubmit} noValidate data-testid="form">
-      {/* banda de claptă de deasupra formularului */}
-      <div className="clapper" aria-hidden="true"></div>
+      {/* antetul biletului, ca la cardurile din listă */}
       <div className="add-form-head">
+        <p className="ticket-no">New ticket · not in the catalog</p>
         <h3 className="add-form-title">Add a custom title</h3>
-        <p className="add-form-kicker">Not in the catalog? Write it in yourself.</p>
       </div>
       <label>
         Title

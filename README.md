@@ -11,6 +11,8 @@ A web application for managing and organizing a personal collection of movies an
 | category | relation | Action, Comedy, Drama, Romance, Thriller, SF |
 | user | relation | the owner of the item                            |
 
+Extra fields saved by the app on each My List item (not part of the required model): `adaugatLa` (date added), `vizionatLa` (date it was marked watched), `notita` (a personal note), `unde` (where to watch it), `revizionari` (how many times it was rewatched), plus `rating` and `episoade`.
+
 Sample data used across all stages:
 1. Inception, unwatched, movie
 2. Breaking Bad, watched, series
@@ -53,18 +55,39 @@ The catalog (190 titles) is no longer written in the React code: it is served by
 Titles can be added from the page. The form (`FilmForm`) is controlled and validated, and every change (add, toggle, rating, delete) goes to the API before it shows up in the list.
 - My List moved from `localStorage` to the server: resource `lista` in `frontend/db.json` (route `/lista`), next to the read-only catalog `filme`. The ids are given by json-server, never by the frontend.
 - `src/api.js` has a common `request` function (JSON header, error on a non-2xx answer, no body on 204) and `fetchLista`, `createFilm` (POST), `updateFilm` (PATCH), `deleteFilm` (DELETE).
-- The form is always visible above My List: title (required, at most 100 characters, not already in the list or in the catalog), format and category. The errors are shown under the fields, not with `alert`. While saving, the button is disabled and says "Saving..."; the fields are cleared only after the server confirms, so the typed text is kept when the API is down.
+- The form is always visible; since stage 8 it is a full-width band above the Catalog and My List panels: title (required, at most 100 characters, not already in the list or in the catalog), format and category. The errors are shown under the fields, not with `alert`. While saving, the button is disabled and says "Saving..."; the fields are cleared only after the server confirms, so the typed text is kept when the API is down.
 - A title added from the catalog is saved as a reference (`catalogId`) plus its basic fields; the runtime, seasons and description are still read from the catalog.
 - If a toggle, rating or delete fails, an error appears above the list and the list stays on screen.
 - `tw.json` (repository root) and the `data-testid` attributes (`form`, `form-title`, `form-format`, `form-categorie`, `form-submit`, `form-error`, `item`, `item-title`, `item-toggle`, `item-delete`, `empty`, `loading`, `error`) mark the elements for the automatic check. The Watched / Unwatched stamp is now a real checkbox, styled like before.
 
+## Stage 8: routing and detail page
+Four pages behind React Router (`BrowserRouter` in `main.jsx`, the route map in `App.jsx`), all drawn inside a common `Layout` (a sticky top bar with the `nav` (two `NavLink`s) and the theme button, the header with the stage curtains and marquee, footer, and an `<Outlet />`):
+- `/` is `FilmePage`: the custom-title form as a band, then the catalog and My List side by side. The Random pick and Your stats buttons live under the title in the shared header (only shown on this page); `Layout` keeps their open/closed state and passes it to the page through the `<Outlet />` context, and the page draws the dialogs because it has the data. It holds everything `App` held before (state, effect, handlers). The item counter moved from the header into the My List panel, because the header is now shared by every page.
+- `/lista/:id` is `FilmDetaliuPage`. The route uses the resource name from `tw.json` (`lista`). The page reads the id with `useParams`, asks the server for exactly that item (`fetchElement`, `GET /lista/:id`) and, when the title comes from the catalog, for its details (`fetchTitluCatalog`). It shows what the ticket does not: format, category, the year, runtime or seasons, the description and the IMDb link. The title can be marked as watched and, once watched, rated, from this page. The effect depends on `[id]`, so going back and forward between items works without a reload. A missing id (`/lista/999`) shows an error message and a link back, not a blank page.
+- `/despre` is `DesprePage`, a short static description of the app.
+- `*` is `NotFoundPage`, for any other address (`data-testid="not-found"`).
+
+The title on a ticket in My List is now a `Link` to its detail page (`data-testid="item-link"`, replacing `item-title`); the "Details" drop-down was removed from My List tickets because the detail page replaces it (the catalog keeps its drop-down). Navigation never reloads the page: only `fetch` requests appear in the Network tab.
+
+Styles moved next to their components with CSS Modules: every component and page has its own `.module.css` (`Layout`, `FilmCard`, `FilmList`, `FilmForm`, `Catalog`, `CatalogItem`, `Stars`, `Progres`, `Detalii`, `DetaliiCorp`, `RandomPick`, `Ruleta`, `Statistici`, `FilmePage`, `FilmDetaliuPage`). `src/index.css` (the old `App.css`) keeps only the colour variables for both themes, `body`, and the shared classes (`.panel`, `.btn`, `.badge`, `.empty`, `.error`, `.info`, `.ticket-no`, `.dialog-close`, `.sr-only`). `vite.config.js` turns on `localsConvention: 'camelCase'`, so `.add-btn` is used as `styles.addBtn`. The fixed values (`CATEGORII`, `FORMATE`, `ETICHETE_TIP`) are in `src/constants.js`. The `data-testid` attributes from stage 7 are unchanged; stage 8 adds `nav`, `item-link`, `detail`, `detail-title` (and `loading`, `error` on the detail page) and `not-found`.
+
+## Extra: polish after stage 8
+Changes made after stage 8, on top of the guide:
+- **Shared state.** `ListaProvider` (`src/ListaProvider.jsx`, read with `useLista()`) holds My List and the catalog and every action on them, so the data is loaded once, the list is not reloaded when the page changes, and the header buttons work on every page. Every change still goes to the server first.
+- **Top bar and header.** A sticky bar with the logo, the `NavLink`s and the theme button; Random pick and Your stats sit under the title on every page; a "Skip to content" link, `aria-label` on the nav, the page title in the browser tab and scroll to top on every page change.
+- **My List.** Count and sort on one line, a search box (title or note), status filters (All / Unwatched / Watched), the date a title was added or watched, rewatch count, note and where to watch on each ticket, an empty-state ticket, skeleton tickets while loading, and a message at the bottom ("added to My List", "Removed ... Undo"). The list scrolls inside its panel, like the catalog.
+- **Detail page.** Besides the facts from the catalog it shows the dates, and lets you edit the note and the place, count rewatches and remove the title.
+- **Random pick** first asks where to pick from: the catalog or My List (unwatched titles only); a pick from My List opens its detail page.
+- **Plot Wrapped** has two more tiles (titles finished this month, day streak) and a chart of titles finished per month. The dates are recorded from the moment a title is marked as watched, so the old titles do not count.
+- **About** has three small cards, the 404 page is a "sold out" ticket, and on small screens the custom-title form is folded until it is opened.
+
 ## Extra: catalog and My List
 Beyond the guide, the interface has two panels:
-- **Catalog** (`Catalog`, `CatalogItem`): about 190 titles, including recent ones. A search box and category chips (Action, Comedy, Drama, Romance, Thriller, SF) filter the list, there is one tab per format (Movies, Series, Animation), and the titles in a tab are grouped by category. Each title has a "Show details" panel (`Detalii`) with the year, category, runtime or seasons and episodes, a short description and a link to IMDb. The first three titles are the sample data above; the catalog is served from `frontend/db.json` (see stage 6), while the categories and formats are constants in `frontend/src/data/catalog.js`.
+- **Catalog** (`Catalog`, `CatalogItem`): about 190 titles, including recent ones. A search box and category chips (Action, Comedy, Drama, Romance, Thriller, SF) filter the list, there is one tab per format (Movies, Series, Animation), and the titles in a tab are grouped by category. Each title has a "Show details" panel (`Detalii`, built on `DetaliiCorp`) with the year, category, runtime or seasons and episodes, a short description and a link to IMDb. The first three titles are the sample data above; the catalog is served from `frontend/db.json` (see stage 6), while the categories and formats are constants in `frontend/src/constants.js`.
 - **My List**: the titles added from the catalog or typed in with the "Add a custom title" form (`FilmForm`, see stage 7). The status can be toggled between Unwatched and Watched; once a title is watched it can be rated with 1-5 stars (`Stars`). The list can be sorted by Order added, Unwatched first or Watched first, and a title can be removed. The list is saved on the server (see stage 7), so it survives a page reload.
 - **Random pick** (`RandomPick`, `Ruleta`): a dialog that asks for a format, then a category (or "Surprise me"). A slot-machine reel with marquee bulbs spins through the matching titles and stops on a random one that has not been watched yet; it can be added to My List, or the reel can be spun again.
 - **Episode tracking** (`Progres`): every series in My List shows its progress ("Next: S2 · E5", episodes watched, a bar with one segment per season) with buttons for one episode back, +1 episode and finish the season. The progress is saved on the server (`episoade`, by PATCH); the last episode marks the series as watched. A binge calculator shows, for a chosen number of episodes per day, the finishing date and the time left.
-- **Plot Wrapped** (`Statistici`, the "Your stats" button in the header): the list in numbers, with animated counters: time spent watching (movie runtimes plus watched episodes), titles and episodes watched, average rating, favourite category, a bar chart per category, the split by format and highlights (top rated, biggest binge, longest watch).
+- **Plot Wrapped** (`Statistici`, the "Your stats" button under the title): the list in numbers, with animated counters: time spent watching (movie runtimes plus watched episodes), titles and episodes watched, average rating, favourite category, a bar chart per category, the split by format and highlights (top rated, biggest binge, longest watch).
 
 The data logic (`stergeFilm`, `inlocuieste`, `dinCatalog`, `dinFormular`, `ratingNou`, `sorteaza`, `filtreazaCatalog`, `alegeRandom`, plus `schimbareEpisoade`, `dataTerminare`, `statistici`, `bandaRuleta` for the extras) is in `frontend/src/logica.js`, built on the functions from stage 2; since stage 7 the changes are made on the server first, and these functions only prepare the data and update the state.
 
@@ -84,7 +107,7 @@ Details per stage: see the `ai-log/` folder.
 - [x] Stage 5: local state and events
 - [x] Stage 6: data from a mock API
 - [x] Stage 7: form and validation
-- [ ] Stage 8: routing and detail page
+- [x] Stage 8: routing and detail page
 
 ## Stage 1: checklist
 - [x] **S1-R1** The theme is approved, and the README has the description, the fields, the sample data and how to run.
@@ -151,3 +174,13 @@ Details per stage: see the `ai-log/` folder.
 - [x] **S7-R6** `tw.json` is in the repository root, and the elements from table 7.3 have the `data-testid` attributes.
 - [x] **S7-R7** The README has the stage section, and `ai-log/etapa-07.md` is filled in.
 - [x] **S7-R8** The commit `Stage 7: ...` is published on GitHub.
+
+## Stage 8: checklist
+- [x] **S8-R1** Navigation from the header changes the page without a reload.
+- [x] **S8-R2** A click on an item opens its detail page, with the right data.
+- [x] **S8-R3** Reloading on the detail address works, and a missing id shows an error message.
+- [x] **S8-R4** An unknown address shows the app's 404 page.
+- [x] **S8-R5** Each component has its own `.module.css` file, and `index.css` only has shared styles.
+- [x] **S8-R6** The `data-testid` attributes from tables 7.3 and 8.2 are present, and the detail route is `/<resource>/:id` (`/lista/:id`), with the resource from `tw.json`.
+- [x] **S8-R7** The README has the stage section, and `ai-log/etapa-08.md` is filled in.
+- [ ] **S8-R8** The commit `Stage 8: ...` is published on GitHub.

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { filtreazaCatalog } from "../logica.js";
 import CatalogItem from "./CatalogItem.jsx";
+import styles from "./Catalog.module.css";
 
 // Catalogul: căutare, filtru pe categorie, un tab pentru fiecare format,
 // iar titlurile din tabul ales sunt grupate pe categorii.
@@ -14,22 +15,23 @@ export default function Catalog({ catalog, categorii, formate, idsInLista, onAda
   const dinFormat = gasite.filter((t) => t.format === format);
 
   return (
-    <div className="catalog-wrap">
+    <div>
       <input
+        id="catalog-search"
         type="search"
-        className="search-input"
+        className={styles.searchInput}
         value={text}
         onChange={(e) => setText(e.target.value)}
         placeholder="Search titles..."
         aria-label="Search the catalog"
       />
 
-      <div className="chips" role="group" aria-label="Filter by category">
+      <div className={styles.chips} role="group" aria-label="Filter by category">
         {["", ...categorii].map((c) => (
           <button
             key={c || "all"}
             type="button"
-            className="chip"
+            className={styles.chip}
             aria-pressed={categorie === c}
             onClick={() => setCategorie(c)}
           >
@@ -38,22 +40,22 @@ export default function Catalog({ catalog, categorii, formate, idsInLista, onAda
         ))}
       </div>
 
-      <div className="tabs" role="group" aria-label="Format">
+      <div className={styles.tabs} role="group" aria-label="Format">
         {formate.map((f) => (
           <button
             key={f.id}
             type="button"
-            className="tab"
+            className={styles.tab}
             aria-pressed={format === f.id}
             onClick={() => setFormat(f.id)}
           >
             {f.eticheta}
-            <span className="tab-count">{gasite.filter((t) => t.format === f.id).length}</span>
+            <span className={styles.tabCount}>{gasite.filter((t) => t.format === f.id).length}</span>
           </button>
         ))}
       </div>
 
-      <div className="catalog">
+      <div className={styles.catalog}>
         {dinFormat.length === 0 && (
           <p className="empty empty-small">No titles match your search.</p>
         )}
@@ -62,9 +64,9 @@ export default function Catalog({ catalog, categorii, formate, idsInLista, onAda
           if (titluri.length === 0) return null;
 
           return (
-            <section key={cat} className="catalog-group">
+            <section key={cat} className={styles.catalogGroup}>
               <h3>{cat}</h3>
-              <ul className="catalog-list">
+              <ul className={styles.catalogList}>
                 {titluri.map((titlu) => (
                   <CatalogItem
                     key={titlu.id}

@@ -1,0 +1,281 @@
+/* Stiluri globale: variabile de culoare (ambele teme), elemente de bază și clase comune.
+   Stilurile de componentă stau în fișiere *.module.css, lângă componente. */
+* { box-sizing: border-box; }
+
+:root {
+    --bg: #efe2cf;
+    --card: #fbf5ea;
+    --ticket: #f7ecd9;
+    --text: #34211a;
+    --muted: #8c705f;
+    --error-bg: #fdf2f8;
+    --error-border: #fbcfe8;
+    --accent: #7a4e37;
+    --accent-dark: #3a2218;
+    --accent-soft: #ecdcc4;
+    --border: #d6bfa4;
+    --shadow: rgba(52, 33, 26, 0.16);
+    --gold: #d8a858;
+    --velvet: #4b2a1f;
+    --velvet-dark: #26140e;
+    --curtain: #7a4030;
+    --sheen: rgba(255, 255, 255, 0.55);
+    --check: #fff6e6;
+    --add-hover-bg: var(--accent);
+    --add-hover-fg: #fff1d6;
+
+    --c-movie: #9a4f38;
+    --c-series: #5c4033;
+    --c-animation: #a8741f;
+
+    --display: "Limelight", "Playfair Display", Georgia, serif;
+    --serif: "Playfair Display", Georgia, "Times New Roman", serif;
+    --body: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+body {
+    margin: 0;
+    font-family: var(--body);
+    background:
+        radial-gradient(ellipse at 50% -10%, rgba(216, 168, 88, 0.25), transparent 55%),
+        var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+}
+
+a { color: var(--accent); }
+
+.panel {
+    position: relative;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 30px 26px 26px;
+    box-shadow: 0 16px 34px var(--shadow);
+}
+
+/* margine de pelicula pe panou */
+.panel::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 8px;
+    background: repeating-linear-gradient(90deg, var(--accent) 0 14px, transparent 14px 20px);
+    border-radius: 8px 8px 0 0;
+    opacity: 0.85;
+}
+
+.panel h2 {
+    margin: 4px 0 22px;
+    padding-bottom: 14px;
+    font-family: var(--serif);
+    font-weight: 700;
+    font-size: 1.8rem;
+    line-height: 1.2;
+    color: var(--accent-dark);
+    /* linie dubla, ca pe afisele vechi */
+    border-bottom: 3px double var(--border);
+}
+
+.ticket-no {
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    font-variant-numeric: tabular-nums;
+    color: var(--muted);
+}
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 2px 11px;
+    border-radius: 999px;
+    border: 1px solid currentColor;
+    background: color-mix(in srgb, currentColor 9%, transparent);
+    font-size: 0.66rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    line-height: 1.6;
+}
+
+.badge::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+.badge-movie     { color: var(--c-movie); }
+.badge-series    { color: var(--c-series); }
+.badge-animation { color: var(--c-animation); }
+
+.empty {
+    padding: 40px 16px;
+    text-align: center;
+    font-family: var(--serif);
+    font-style: italic;
+    color: var(--muted);
+    border: 2px dashed var(--border);
+    border-radius: 10px;
+}
+
+.empty::before {
+    content: "\1F3A5";
+    display: block;
+    font-size: 2.2rem;
+    font-style: normal;
+    margin-bottom: 6px;
+}
+
+.empty-small {
+    padding: 24px 16px;
+    font-size: 0.95rem;
+}
+
+.empty-small::before { display: none; }
+
+select {
+    padding: 6px 10px;
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    background: var(--ticket);
+    color: var(--text);
+    font: inherit;
+    font-size: 0.85rem;
+    letter-spacing: normal;
+    text-transform: none;
+}
+
+.btn {
+    padding: 7px 16px;
+    border: 1.5px solid var(--accent);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--accent-dark);
+    font: inherit;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s, opacity 0.2s;
+}
+
+.btn:hover:not(:disabled) { background: var(--accent-soft); }
+
+.btn-primary {
+    background: var(--accent);
+    color: #fff1d6;
+}
+
+.btn-primary:hover:not(:disabled) { background: var(--accent-dark); color: #fff1d6; }
+
+.btn:disabled { opacity: 0.55; cursor: default; }
+
+.dialog-close {
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--muted);
+    font-size: 1.6rem;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.dialog-close:hover { background: var(--accent-soft); color: var(--accent-dark); }
+
+:focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 3px;
+}
+
+/* ---------- DARK MODE ---------- */
+
+/* Tema sistemului, dacă utilizatorul nu a ales explicit tema luminoasă */
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+        --bg: #1a1310;
+        --card: #241b16;
+        --ticket: #2f231c;
+        --text: #efe2d0;
+        --muted: #b08968;
+        --error-bg: #3b1d2e;
+        --error-border: #6b2a4a;
+        --accent: #a8714c;
+        --accent-dark: #e8cfae;
+        --accent-soft: #33281f;
+        --border: #4d3b30;
+        --shadow: rgba(0, 0, 0, 0.45);
+        --sheen: rgba(255, 255, 255, 0.04);
+        --check: #1a1310;
+        --add-hover-bg: var(--gold);
+        --add-hover-fg: #1a1310;
+
+        --c-movie: #e08a6c;
+        --c-series: #c9a58f;
+        --c-animation: #e0b25a;
+    }
+}
+
+/* Tema aleasă din buton are prioritate față de cea a sistemului */
+:root[data-theme="dark"] {
+    --bg: #1a1310;
+    --card: #241b16;
+    --ticket: #2f231c;
+    --text: #efe2d0;
+    --muted: #b08968;
+    --error-bg: #3b1d2e;
+    --error-border: #6b2a4a;
+    --accent: #a8714c;
+    --accent-dark: #e8cfae;
+    --accent-soft: #33281f;
+    --border: #4d3b30;
+    --shadow: rgba(0, 0, 0, 0.45);
+    --sheen: rgba(255, 255, 255, 0.04);
+    --check: #1a1310;
+    --add-hover-bg: var(--gold);
+    --add-hover-fg: #1a1310;
+
+    --c-movie: #e08a6c;
+    --c-series: #c9a58f;
+    --c-animation: #e0b25a;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-delay: 0s !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+.info { color: var(--muted); }
+
+.error {
+    color: #b3402f;
+    background: var(--error-bg);
+    border: 1px solid var(--error-border);
+    border-radius: 8px;
+    padding: 10px 12px;
+}
+
+/* text doar pentru cititoarele de ecran */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+}

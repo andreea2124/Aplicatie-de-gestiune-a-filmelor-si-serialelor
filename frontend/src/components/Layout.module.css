@@ -1,0 +1,331 @@
+/* ---------- HEADER: scena cu cortine ---------- */
+
+.app-header {
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+    color: #f6ead8;
+    padding: 92px 16px 52px;
+    background:
+        radial-gradient(ellipse at 50% 0%, rgba(216, 168, 88, 0.45), transparent 60%),
+        linear-gradient(180deg, var(--velvet-dark), var(--velvet) 70%, #3a2318);
+}
+
+/* cele doua cortine care se deschid la incarcare */
+.app-header::before,
+.app-header::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 50%;
+    z-index: 3;
+    pointer-events: none;
+    background:
+        repeating-linear-gradient(90deg,
+            rgba(0, 0, 0, 0.38) 0,
+            rgba(255, 235, 210, 0.08) 18px,
+            rgba(0, 0, 0, 0.38) 36px),
+        linear-gradient(180deg, var(--curtain), var(--velvet));
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.5);
+}
+
+.app-header::before {
+    left: 0;
+    transform-origin: left center;
+    animation: curtain-left 1.8s 0.3s cubic-bezier(.7, 0, .2, 1) forwards;
+}
+
+.app-header::after {
+    right: 0;
+    transform-origin: right center;
+    animation: curtain-right 1.8s 0.3s cubic-bezier(.7, 0, .2, 1) forwards;
+}
+
+@keyframes curtain-left  { to { transform: scaleX(0.14); } }
+@keyframes curtain-right { to { transform: scaleX(0.14); } }
+
+/* draperia de sus, cu margine aurie */
+.valance {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 46px;
+    z-index: 4;
+    pointer-events: none;
+    background:
+        linear-gradient(180deg, var(--curtain), var(--velvet)) top / 100% 12px no-repeat,
+        radial-gradient(ellipse 60px 34px at 50% 0, var(--velvet) 97%, transparent 100%) 0 0 / 120px 46px repeat-x,
+        radial-gradient(ellipse 60px 38px at 50% 0, var(--gold) 97%, transparent 100%) 0 0 / 120px 46px repeat-x;
+    filter: drop-shadow(0 6px 6px rgba(0, 0, 0, 0.45));
+}
+
+/* fasciculul de lumina de la proiector */
+.beam {
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    width: 140%;
+    height: 130%;
+    transform: translateX(-50%);
+    background: conic-gradient(from 168deg at 50% 0%,
+        transparent 0deg, rgba(246, 226, 190, 0.18) 12deg, transparent 24deg);
+    pointer-events: none;
+    animation: beam-sway 7s ease-in-out infinite alternate;
+}
+
+@keyframes beam-sway {
+    from { transform: translateX(-50%) rotate(-3deg); }
+    to   { transform: translateX(-50%) rotate(3deg); }
+}
+
+.marquee {
+    position: relative;
+    z-index: 2;
+    display: inline-block;
+    padding: 28px 64px 18px;
+    border: 3px solid var(--gold);
+    border-radius: 6px;
+    background: rgba(38, 20, 14, 0.6);
+    box-shadow: 0 0 0 6px rgba(38, 20, 14, 0.5), 0 0 44px rgba(216, 168, 88, 0.38);
+    opacity: 0;
+    animation: marquee-on 0.9s 1.4s steps(1, end) forwards;
+}
+
+/* becurile marquee-ului: sus, jos si pe laterale */
+.marquee::before,
+.marquee::after,
+.bulbs-side {
+    content: "";
+    position: absolute;
+    filter: drop-shadow(0 0 4px var(--gold));
+    animation: bulbs 1.2s steps(1, end) infinite;
+}
+
+.marquee::before,
+.marquee::after {
+    left: 14px;
+    right: 14px;
+    height: 8px;
+    background: radial-gradient(circle, #fff1c9 0 2.5px, transparent 3.5px) 0 0 / 22px 8px repeat-x;
+}
+
+.marquee::before { top: 8px; }
+.marquee::after  { bottom: 8px; animation-delay: 0.6s; }
+
+.bulbs-side {
+    top: 14px;
+    bottom: 14px;
+    width: 8px;
+    background: radial-gradient(circle, #fff1c9 0 2.5px, transparent 3.5px) 0 0 / 8px 22px repeat-y;
+}
+
+.bulbs-left  { left: 14px;  animation-delay: 0.3s; }
+.bulbs-right { right: 14px; animation-delay: 0.9s; }
+
+@keyframes bulbs {
+    0%   { opacity: 1; }
+    50%  { opacity: 0.35; }
+}
+
+@keyframes marquee-on {
+    0%   { opacity: 0; }
+    20%  { opacity: 1; }
+    35%  { opacity: 0.2; }
+    55%  { opacity: 1; }
+    70%  { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+.app-header h1 {
+    margin: 0;
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: clamp(3.6rem, 13vw, 6.8rem);
+    line-height: 1.1;
+    letter-spacing: 0.1em;
+    padding-left: 0.1em;
+    color: #fff1d6;
+    text-shadow: 0 0 20px rgba(216, 168, 88, 0.7), 0 3px 0 #8a5a3b;
+}
+
+.app-header p {
+    position: relative;
+    z-index: 2;
+    margin: 22px auto 0;
+    max-width: 520px;
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 1.1rem;
+    color: #ead9c1;
+}
+
+
+
+/* banda de film sub header */
+.filmstrip {
+    height: 34px;
+    background:
+        radial-gradient(circle at 50% 50%, var(--bg) 0 5px, transparent 5.5px) 0 0 / 28px 34px repeat-x,
+        #26140e;
+    border-top: 3px solid var(--gold);
+    animation: roll 6s linear infinite;
+}
+
+@keyframes roll {
+    to { background-position: -28px 0, 0 0; }
+}
+
+/* ---------- FOOTER ---------- */
+
+.app-footer {
+    margin-top: 48px;
+    padding: 28px 16px 36px;
+    text-align: center;
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 1.05rem;
+    letter-spacing: 0.12em;
+    color: #d9c2a7;
+    background: #26140e;
+    border-top: 3px solid var(--gold);
+}
+
+/* ---------- BUTON TEMĂ ---------- */
+
+.theme-toggle {
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    border: 2px solid var(--gold);
+    border-radius: 50%;
+    background: transparent;
+    color: #fff1d6;
+    font-size: 1.1rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+.theme-toggle:hover { background: rgba(216, 168, 88, 0.25); }
+
+@media (max-width: 700px) {
+    .marquee { padding: 24px 40px 14px; }
+    .bulbs-left  { left: 10px; }
+    .bulbs-right { right: 10px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .marquee { opacity: 1; }
+}
+
+/* bara de navigatie de sus: NavLink marcheaza singur pagina curenta */
+.topbar {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    gap: 22px;
+    padding: 8px 20px;
+    background: var(--velvet-dark);
+    border-bottom: 2px solid var(--gold);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+}
+
+.nav {
+    display: flex;
+    gap: 6px;
+}
+
+.link {
+    padding: 6px 16px;
+    border-bottom: 3px solid transparent;
+    color: #f6ead8;
+    font-family: var(--serif);
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-decoration: none;
+    transition: color 0.2s, border-color 0.2s;
+}
+
+.link:hover { color: var(--gold); }
+
+/* ambele linkuri arata la fel; pagina curenta are doar o linie aurie dedesubt */
+.active,
+.active:hover {
+    color: #fff1d6;
+    border-bottom-color: var(--gold);
+}
+
+/* Random pick / Your stats, sub titlu (doar pe pagina principala) */
+.actions {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 22px;
+}
+
+.random-btn {
+    padding: 10px 30px;
+    border: 2px solid var(--gold);
+    border-radius: 999px;
+    background: rgba(38, 20, 14, 0.55);
+    color: #fff1d6;
+    font-family: var(--serif);
+    font-size: 1.05rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+}
+
+.random-btn:hover {
+    background: var(--gold);
+    color: var(--velvet-dark);
+    box-shadow: 0 0 22px rgba(216, 168, 88, 0.6);
+}
+
+.main {
+    max-width: 1040px;
+    margin: 28px auto;
+    padding: 0 16px;
+}
+
+/* logo-ul din bara de sus */
+.brand {
+    color: #fff1d6;
+    font-family: var(--display);
+    font-size: 1.5rem;
+    letter-spacing: 0.08em;
+    text-decoration: none;
+    text-shadow: 0 0 14px rgba(216, 168, 88, 0.6);
+}
+
+.topbar .theme-toggle { margin-left: auto; }
+
+.random-btn:disabled { opacity: 0.5; cursor: default; box-shadow: none; }
+
+/* "Skip to content": apare doar la focus, pentru tastatura */
+.skip {
+    position: absolute;
+    top: -60px;
+    left: 12px;
+    z-index: 40;
+    padding: 8px 14px;
+    border-radius: 0 0 8px 8px;
+    background: var(--gold);
+    color: var(--velvet-dark);
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.skip:focus { top: 0; }
+
+.main:focus { outline: none; }

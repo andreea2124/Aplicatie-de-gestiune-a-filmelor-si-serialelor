@@ -1,0 +1,307 @@
+.item-card {
+    position: relative;
+    display: flex;
+    align-items: stretch;
+    min-height: 104px;
+    background:
+        linear-gradient(135deg, var(--sheen), transparent 55%),
+        var(--ticket);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    box-shadow: 0 3px 8px var(--shadow);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    animation: ticket-in 0.6s cubic-bezier(.2, .8, .2, 1) both;
+}
+
+
+@keyframes ticket-in {
+    from { opacity: 0; transform: translateX(-30px) rotate(-1.5deg); }
+    to   { opacity: 1; transform: none; }
+}
+
+/* marginea din stanga, ca o banda de film perforata */
+.item-card::before {
+    content: "";
+    flex: 0 0 14px;
+    border-radius: 9px 0 0 9px;
+    background:
+        radial-gradient(circle, var(--ticket) 0 2.5px, transparent 3px) center 0 / 14px 14px repeat-y,
+        var(--accent);
+}
+
+.item-card:hover {
+    transform: translateY(-3px) rotate(-0.4deg);
+    box-shadow: 0 14px 24px var(--shadow);
+}
+
+.ticket-main {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 6px;
+    padding: 16px 40px 16px 20px;
+}
+
+.item-card h3 {
+    margin: 0;
+    font-family: var(--serif);
+    font-weight: 700;
+    font-size: 1.35rem;
+    line-height: 1.25;
+    color: var(--accent-dark);
+    overflow-wrap: anywhere;
+}
+
+/* talonul biletului, separat prin perforatie */
+.ticket-stub {
+    position: relative;
+    flex: 0 0 120px;
+    display: grid;
+    place-items: center;
+    padding: 10px;
+    border-left: 2px dashed var(--border);
+}
+
+/* decupajele rotunde de la perforatie */
+.ticket-stub::before,
+.ticket-stub::after {
+    content: "";
+    position: absolute;
+    left: -12px;
+    width: 22px;
+    height: 22px;
+    box-sizing: border-box;
+    border-radius: 50%;
+    background: var(--card);
+    border: 1px solid var(--border);
+}
+
+.ticket-stub::before { top: -12px; clip-path: inset(50% 0 0 0); }
+.ticket-stub::after  { bottom: -12px; clip-path: inset(0 0 50% 0); }
+
+/* statusul: Unwatched / Watched */
+.status {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 8px 4px;
+    text-align: center;
+    font-family: var(--body);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent-dark);
+}
+
+/* statusul ca checkbox (Etapa 7): eticheta e zona pe care se da click */
+label.status {
+    border: 2px solid transparent;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+}
+
+label.status:hover {
+    background: var(--accent-soft);
+    border-color: var(--border);
+}
+
+/* cat timp se salveaza bifa, statusul nu mai poate fi apasat */
+label.status:has(.status-check:disabled) {
+    cursor: progress;
+    opacity: 0.6;
+}
+
+/* la eticheta, indicatorul e desenat in checkbox, nu in pseudo-elementul etichetei */
+label.status::before,
+.item-card.watched label.status::before { content: none; }
+
+/* checkbox-ul ramane fix (fara animatie), ca sa poata fi apasat si de verificarea
+   automata; pulsul e pe pseudo-elementul lui */
+.status-check {
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    width: 14px;
+    height: 14px;
+    margin: 0;
+    border-radius: 50%;
+    appearance: none;
+    cursor: inherit;
+}
+
+/* Unwatched = "now showing", cu un indicator care pulseaza */
+.status::before,
+.status-check::before {
+    content: "";
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--gold);
+    box-shadow: 0 0 10px var(--gold);
+    animation: onair 1.6s ease-in-out infinite;
+}
+
+@keyframes onair {
+    50% { opacity: 0.3; transform: scale(0.7); }
+}
+
+/* Watched = stampila "vizionat" */
+.item-card.watched {
+    background: var(--ticket);
+}
+
+.item-card.watched::before {
+    background:
+        radial-gradient(circle, var(--ticket) 0 2.5px, transparent 3px) center 0 / 14px 14px repeat-y,
+        var(--muted);
+}
+
+.item-card.watched h3 {
+    color: var(--muted);
+}
+
+.item-card.watched .status {
+    color: var(--c-movie);
+    border: 2px solid currentColor;
+    border-radius: 6px;
+    transform: rotate(-6deg);
+    opacity: 0.85;
+}
+
+.item-card.watched .status::before {
+    content: "\2713";
+    display: grid;
+    place-items: center;
+    width: 20px;
+    height: 20px;
+    font-size: 0.8rem;
+    line-height: 1;
+    color: var(--check);
+    background: var(--c-movie);
+    box-shadow: none;
+    animation: none;
+}
+
+/* aceeasi bifa, desenata in checkbox */
+.item-card.watched .status-check {
+    width: 20px;
+    height: 20px;
+    font-size: 0.8rem;
+    line-height: 1;
+    color: var(--check);
+    background: var(--c-movie);
+}
+
+.item-card.watched .status-check::before {
+    content: "\2713";
+    width: auto;
+    height: auto;
+    background: none;
+    box-shadow: none;
+    animation: none;
+}
+
+.item-card.watched label.status:hover {
+    background: transparent;
+    opacity: 1;
+}
+
+/* scoate titlul din My List */
+.remove-btn {
+    position: absolute;
+    top: 8px;
+    right: 130px;
+    width: 26px;
+    height: 26px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--muted);
+    font-size: 1.3rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+
+.remove-btn:hover {
+    background: var(--accent-soft);
+    color: var(--accent-dark);
+}
+
+
+.remove-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.item-card h3 a { color: inherit; text-decoration: none; }
+.item-card h3 a:hover { text-decoration: underline; }
+
+/* "Episodes ▼": deschide progresul pe episoade (ca "Details" din catalog) */
+.expand-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--accent);
+    cursor: pointer;
+}
+.expand-link:hover { color: var(--accent-dark); text-decoration: underline; }
+.expand-link i { font-style: normal; font-size: 0.65rem; transition: transform 0.25s; }
+.expand-link[aria-expanded="true"] i { transform: rotate(180deg); }
+
+.collapse {
+    width: 100%;
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.3s ease;
+}
+.collapse.open { grid-template-rows: 1fr; }
+.collapse > div { overflow: hidden; }
+
+@media (max-width: 700px) {
+    .ticket-main { padding-right: 34px; }
+    .ticket-stub { flex-basis: 100px; }
+    .remove-btn { right: 110px; }
+    .status { font-size: 0.64rem; letter-spacing: 0.1em; }
+}
+
+/* data vizionarii, unde se vede, re-vizionari, notita */
+.when {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 8px;
+    font-size: 0.72rem;
+    color: var(--muted);
+}
+
+.rewatch {
+    padding: 1px 9px;
+    border-radius: 999px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+}
+
+.note {
+    font-family: var(--serif);
+    font-size: 0.82rem;
+    font-style: italic;
+    color: var(--muted);
+    overflow-wrap: anywhere;
+}

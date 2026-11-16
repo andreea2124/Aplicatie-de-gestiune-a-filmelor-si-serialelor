@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { ETICHETE_TIP } from "../constants.js";
 import { alegeRandom, bandaRuleta, candidatiRecomandare } from "../logica.js";
 import Ruleta from "./Ruleta.jsx";
+import styles from "./RandomPick.module.css";
 
-const ETICHETE_TIP = { movie: "Movie", series: "Series", animation: "Animation" };
-
-// Fereastra "Random pick": întâi formatul, apoi categoria, apoi recomandarea.
+// Fereastra "Random pick": întâi sursa (catalog sau My List), apoi formatul, apoi categoria,
+// apoi recomandarea.
 // idsInLista = id-urile din catalog ale titlurilor deja adăugate (sau în curs de adăugare).
 export default function RandomPick({
   catalog,
@@ -16,6 +18,8 @@ export default function RandomPick({
   onInchide,
 }) {
   const dialog = useRef(null);
+  const navigate = useNavigate();
+  const [sursa, setSursa] = useState(null); // "catalog" sau "lista"
   const [format, setFormat] = useState(null);
   const [categorie, setCategorie] = useState(null); // "" = orice categorie
   const [titlu, setTitlu] = useState(null);
@@ -28,7 +32,8 @@ export default function RandomPick({
     if (dialog.current && !dialog.current.open) dialog.current.showModal();
   }, []);
 
-  const candidati = (f, c) => candidatiRecomandare(catalog, lista, f, c);
+  const candidati = (f, c) => candidatiRecomandare(catalog, lista, f, c, sursa);
+  const nevazuteInLista = lista.filter((f) => !f.vizionat).length;
 
   // Alege titlul și pregătește banda care se oprește pe el.
   function invarte(lista, exclus) {
@@ -44,59 +49,101 @@ export default function RandomPick({
     invarte(candidati(format, c), null);
   }
 
-  // titlurile manuale vin chiar din listă; cele din catalog se caută după catalogId
-  const inLista = titlu && (titlu.manual || idsInLista.includes(titlu.id));
+  // titlurile din listă (manuale sau alese din My List) sunt deja în listă;
+  // cele din catalog se caută după catalogId
+  const inLista = titlu && (titlu.manual || titlu.deLista || idsInLista.includes(titlu.id));
+
+  function deschideDetalii() {
+    onInchide();
+    navigate(`/lista/${titlu.id}`);
+  }
 
   return (
-    <dialog ref={dialog} className="random-dialog" onClose={onInchide}>
+    <dialog ref={dialog} className={styles.randomDialog} onClose={onInchide}>
       <button type="button" className="dialog-close" onClick={onInchide} aria-label="Close">
         &times;
       </button>
       <h2>Random pick</h2>
 
-      {format === null && (
+      {sursa === null && (
         <>
-          <p className="dialog-step">Step 1 of 2 &mdash; what are you in the mood for?</p>
-          <div className="option-grid">
+          <p className={styles.dialogStep}>Step 1 of 3 &mdash; where from?</p>
+          <div className={styles.optionGrid}>
+            <button type="button" className={styles.option} onClick={() => setSursa("catalog")}>
+              Catalog
+              <small>{catalog.length} titles</small>
+            </button>
+            <button
+              type="button"
+              className={styles.option}
+              disabled={nevazuteInLista === 0}
+              onClick={() => setSursa("lista")}
+            >
+              My List
+              <small>
+                {nevazuteInLista} unwatched {nevazuteInLista === 1 ? "title" : "titles"}
+              </small>
+            </button>
+          </div>
+        </>
+      )}
+
+      {sursa !== null && format === null && (
+        <>
+          <p className={styles.dialogStep}>Step 2 of 3 &mdash; what are you in the mood for?</p>
+          <div className={styles.optionGrid}>
             {formate.map((f) => (
-              <button key={f.id} type="button" className="option" onClick={() => setFormat(f.id)}>
+              <button
+                key={f.id}
+                type="button"
+                className={styles.option}
+                disabled={candidatiRecomandare(catalog, lista, f.id, "", sursa).length === 0}
+                onClick={() => setFormat(f.id)}
+              >
                 {f.eticheta}
               </button>
             ))}
           </div>
+          <button type="button" className={styles.linkBtn} onClick={() => setSursa(null)}>
+            &larr; Back
+          </button>
         </>
       )}
 
       {format !== null && categorie === null && (
         <>
-          <p className="dialog-step">Step 2 of 2 &mdash; pick a category</p>
-          <div className="option-grid">
+          <p className={styles.dialogStep}>Step 3 of 3 &mdash; pick a category</p>
+          <div className={styles.optionGrid}>
             {categorii.map((c) => (
               <button
                 key={c}
                 type="button"
-                className="option"
+                className={styles.option}
                 disabled={candidati(format, c).length === 0}
                 onClick={() => alegeCategoria(c)}
               >
                 {c}
               </button>
             ))}
-            <button type="button" className="option option-any" onClick={() => alegeCategoria("")}>
+            <button
+              type="button"
+              className={`${styles.option} ${styles.optionAny}`}
+              onClick={() => alegeCategoria("")}
+            >
               Surprise me
             </button>
           </div>
-          <button type="button" className="link-btn" onClick={() => setFormat(null)}>
+          <button type="button" className={styles.linkBtn} onClick={() => setFormat(null)}>
             &larr; Back
           </button>
         </>
       )}
 
       {categorie !== null && titlu && (
-        <div className="pick-result">
-          <p className="dialog-step">Tonight you could watch</p>
+        <div>
+          <p className={styles.dialogStep}>Tonight you could watch</p>
           <Ruleta key={runda} banda={banda} onGata={setGata} />
-          <p className={gata ? "pick-meta shown" : "pick-meta"} aria-live="polite">
+          <p className={gata ? `${styles.pickMeta} ${styles.shown}` : styles.pickMeta} aria-live="polite">
             {gata && (
               <>
                 <span className="sr-only">{titlu.titlu}</span>
@@ -105,15 +152,21 @@ export default function RandomPick({
               </>
             )}
           </p>
-          <div className="add-form-actions">
-            <button
-              type="button"
-              className="btn btn-primary"
-              disabled={inLista || !gata}
-              onClick={() => onAdauga(titlu)}
-            >
-              {inLista ? "✓ In My List" : "+ Add to My List"}
-            </button>
+          <div className={styles.actions}>
+            {titlu.deLista ? (
+              <button type="button" className="btn btn-primary" disabled={!gata} onClick={deschideDetalii}>
+                Open details
+              </button>
+            ) : (
+              <button
+                type="button"
+                className="btn btn-primary"
+                disabled={inLista || !gata}
+                onClick={() => onAdauga(titlu)}
+              >
+                {inLista ? "✓ In My List" : "+ Add to My List"}
+              </button>
+            )}
             <button
               type="button"
               className="btn"
@@ -135,7 +188,7 @@ export default function RandomPick({
       {categorie !== null && (
         <button
           type="button"
-          className="link-btn"
+          className={styles.linkBtn}
           onClick={() => {
             setCategorie(null);
             setTitlu(null);

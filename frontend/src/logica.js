@@ -4,7 +4,7 @@
 
 // Elementul trimis la server când se adaugă un titlu din catalog: doar referința
 // (catalogId) și câmpurile de bază; detaliile se iau din catalog la afișare.
-export function dinCatalog(titlu) {
+export function dinCatalog(titlu, acum = new Date()) {
   return {
     catalogId: titlu.id,
     titlu: titlu.titlu,
@@ -12,12 +12,18 @@ export function dinCatalog(titlu) {
     categorie: titlu.categorie,
     vizionat: false,
     rating: 0,
+    ...campuriNoi(acum),
   };
 }
 
+// Câmpurile personale ale unui element nou: data adăugării, notiță, unde se vede, re-vizionări.
+function campuriNoi(acum) {
+  return { adaugatLa: acum.toISOString(), notita: "", unde: "", revizionari: 0 };
+}
+
 // Elementul trimis la server pentru un titlu scris de utilizator în formular.
-export function dinFormular({ titlu, format, categorie }) {
-  return { titlu, format, categorie, vizionat: false, rating: 0, manual: true };
+export function dinFormular({ titlu, format, categorie }, acum = new Date()) {
+  return { titlu, format, categorie, vizionat: false, rating: 0, manual: true, ...campuriNoi(acum) };
 }
 
 // Înlocuiește în listă elementul cu același id cu cel întors de server.
@@ -53,6 +59,28 @@ export function sorteaza(lista, mod) {
   return lista;
 }
 
+// Filtrează My List după text (în titlu sau în notiță) și după status: "toate", "nevazute", "vazute".
+export function filtreazaLista(lista, text, status) {
+  const q = text.trim().toLowerCase();
+  return lista.filter((f) => {
+    const statusOk = status === "toate" || (status === "vazute" ? Boolean(f.vizionat) : !f.vizionat);
+    const textOk = !q || f.titlu.toLowerCase().includes(q) || (f.notita ?? "").toLowerCase().includes(q);
+    return statusOk && textOk;
+  });
+}
+
+// Câte elemente are fiecare filtru de status.
+export function numaraStatus(lista) {
+  const vazute = lista.filter((f) => f.vizionat).length;
+  return { toate: lista.length, nevazute: lista.length - vazute, vazute };
+}
+
+// "2026-11-12T10:00:00.000Z" -> "12 Nov 2026" ("" dacă lipsește)
+const formatData = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", year: "numeric" });
+export function formateazaData(iso) {
+  return iso ? formatData.format(new Date(iso)) : "";
+}
+
 // Filtrează catalogul după text (în titlu) și, opțional, după categorie.
 export function filtreazaCatalog(catalog, text, categorie) {
   const q = text.trim().toLowerCase();
@@ -63,7 +91,13 @@ export function filtreazaCatalog(catalog, text, categorie) {
 
 // Candidații pentru Random pick: titlurile din catalog și cele adăugate manual în listă,
 // cu formatul (și categoria, dacă e aleasă) cerute, fără cele deja văzute.
-export function candidatiRecomandare(catalog, lista, format, categorie) {
+export function candidatiRecomandare(catalog, lista, format, categorie, sursa = "catalog") {
+  // din My List: doar titlurile nevăzute, marcate cu deLista (id-ul e cel din listă)
+  if (sursa === "lista") {
+    return lista
+      .filter((f) => !f.vizionat && f.format === format && (!categorie || f.categorie === categorie))
+      .map((f) => ({ ...f, deLista: true }));
+  }
   const vazute = new Set(idsDinCatalog(lista.filter((f) => f.vizionat)));
   const manuale = lista.filter((f) => f.catalogId == null && !f.vizionat);
   return [...catalog.filter((t) => !vazute.has(t.id)), ...manuale].filter(
@@ -73,7 +107,7 @@ export function candidatiRecomandare(catalog, lista, format, categorie) {
 
 // Id-urile din catalog și cele din listă pot coincide, deci un candidat
 // se recunoaște după sursă + id.
-const cheieCandidat = (t) => (t.manual ? `lista-${t.id}` : `catalog-${t.id}`);
+const cheieCandidat = (t) => (t.manual || t.deLista ? `lista-${t.id}` : `catalog-${t.id}`);
 
 // Alege la întâmplare un candidat; dacă sunt mai mulți, evită titlul `exclus`.
 export function alegeRandom(candidati, exclus, rng = Math.random) {
@@ -140,20 +174,27 @@ export function finalSezon(sezoane, vazute) {
 
 // Modificarea trimisă la server când se schimbă numărul de episoade:
 // la ultimul episod titlul devine văzut, iar sub el redevine nevăzut.
-export function schimbareEpisoade(f, nou) {
+export function schimbareEpisoade(f, nou, acum = new Date()) {
   const total = totalEpisoade(f);
   const n = Math.max(0, Math.min(nou, total));
-  return { episoade: n, vizionat: n === total };
+  const vizionat = n === total;
+  const schimbare = { episoade: n, vizionat };
+  // data vizionării se notează când titlul devine văzut și se șterge când nu mai e
+  if (vizionat && !f.vizionat) schimbare.vizionatLa = acum.toISOString();
+  if (!vizionat && f.vizionat) schimbare.vizionatLa = null;
+  return schimbare;
 }
 
 // Modificarea trimisă la bifare. Un serial terminat din episoade și debifat
 // pornește de la zero (altfel ar arăta toate episoadele văzute, dar nebifat).
-export function schimbareVizionat(f) {
+export function schimbareVizionat(f, acum = new Date()) {
   const total = totalEpisoade(f);
   if (f.vizionat && total > 0 && (f.episoade ?? 0) >= total) {
-    return { vizionat: false, episoade: 0 };
+    return { vizionat: false, episoade: 0, vizionatLa: null };
   }
-  return { vizionat: !f.vizionat };
+  return f.vizionat
+    ? { vizionat: false, vizionatLa: null }
+    : { vizionat: true, vizionatLa: acum.toISOString() };
 }
 
 // În câte zile și la ce dată se termină `ramase` episoade, la `peZi` pe zi.
@@ -172,7 +213,37 @@ export function minuteVazute(f) {
   return f.vizionat ? f.durata ?? 0 : 0;
 }
 
-export function statistici(lista, categorii) {
+// Ziua locală a unei date, ca text: "2026-11-12"
+const cheieZi = (d) => `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+
+// Câte zile la rând (până azi sau ieri) s-a terminat cel puțin un titlu.
+export function serieZile(lista, azi = new Date()) {
+  const zile = new Set(lista.filter((f) => f.vizionatLa).map((f) => cheieZi(new Date(f.vizionatLa))));
+  const ziua = new Date(azi.getFullYear(), azi.getMonth(), azi.getDate());
+  if (!zile.has(cheieZi(ziua))) ziua.setDate(ziua.getDate() - 1); // seria poate fi încă activă de ieri
+  let serie = 0;
+  while (zile.has(cheieZi(ziua))) {
+    serie++;
+    ziua.setDate(ziua.getDate() - 1);
+  }
+  return serie;
+}
+
+// Titlurile terminate în ultimele `n` luni (inclusiv cea curentă), de la cea mai veche la cea mai nouă.
+export function peLuni(lista, azi = new Date(), n = 6) {
+  const nume = new Intl.DateTimeFormat("en-GB", { month: "short" });
+  return Array.from({ length: n }, (_, i) => {
+    const luna = new Date(azi.getFullYear(), azi.getMonth() - (n - 1 - i), 1);
+    const cate = lista.filter((f) => {
+      if (!f.vizionatLa) return false;
+      const d = new Date(f.vizionatLa);
+      return d.getFullYear() === luna.getFullYear() && d.getMonth() === luna.getMonth();
+    }).length;
+    return { eticheta: nume.format(luna), n: cate };
+  });
+}
+
+export function statistici(lista, categorii, azi = new Date()) {
   const vazute = lista.filter((f) => f.vizionat);
   const minute = lista.reduce((s, f) => s + minuteVazute(f), 0);
   const episoade = lista.reduce((s, f) => s + (f.sezoane ? episoadeVazute(f) : 0), 0);
@@ -196,7 +267,13 @@ export function statistici(lista, categorii) {
   const serialTop = maxDupa(lista.filter((f) => f.sezoane && episoadeVazute(f) > 0), episoadeVazute);
   const faraDurata = vazute.filter((f) => !f.durata && !f.durataEp).length;
 
+  const luni = peLuni(lista, azi);
+
   return {
+    luni,
+    lunaAceasta: luni[luni.length - 1].n,
+    serie: serieZile(lista, azi),
+    cuDate: lista.some((f) => f.vizionatLa),
     total: lista.length,
     vazute: vazute.length,
     minute,

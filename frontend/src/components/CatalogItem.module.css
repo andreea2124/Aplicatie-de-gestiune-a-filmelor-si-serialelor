@@ -1,0 +1,66 @@
+.catalog-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 9px 8px;
+    border-bottom: 1px dashed var(--border);
+    border-radius: 6px;
+    transition: background 0.2s;
+}
+
+.catalog-item:hover {
+    background: var(--accent-soft);
+}
+
+.catalog-title {
+    flex: 1;
+    min-width: 0;
+    font-weight: 500;
+}
+
+.add-btn {
+    flex-shrink: 0;
+    min-width: 82px;
+    padding: 5px 12px;
+    border: 1.5px solid var(--accent);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--accent-dark);
+    font: inherit;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+
+.add-btn:hover:not(:disabled) {
+    background: var(--add-hover-bg);
+    border-color: var(--add-hover-bg);
+    color: var(--add-hover-fg);
+}
+
+.add-btn:disabled {
+    border-color: var(--border);
+    color: var(--muted);
+    cursor: default;
+}
+
+.catalog-item { flex-wrap: wrap; }
+
+.expand-btn {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    display: grid;
+    place-items: center;
+    padding: 0;
+    border: 1.5px solid var(--border);
+    border-radius: 50%;
+    background: transparent;
+    color: var(--accent-dark);
+    font-size: 0.7rem;
+    cursor: pointer;
+    transition: transform 0.25s ease, background 0.2s;
+}
+.expand-btn:hover { background: var(--accent-soft); }
+.expand-btn[aria-expanded="true"] { transform: rotate(180deg); }

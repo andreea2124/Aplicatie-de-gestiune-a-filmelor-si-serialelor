@@ -1,0 +1,94 @@
+.detail { max-width: 640px; margin: 0 auto; }
+
+.back {
+    display: inline-block;
+    margin-bottom: 14px;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.done { color: var(--muted); }
+
+.fields {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    align-items: center;
+    gap: 12px 24px;
+    margin: 0 0 20px;
+}
+
+.fields dt {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+.fields dd { margin: 0; }
+
+.toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.toggle input {
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    accent-color: var(--accent);
+    cursor: pointer;
+}
+
+.toggle:has(input:disabled) { cursor: progress; opacity: 0.6; }
+
+.more {
+    padding-top: 18px;
+    border-top: 3px double var(--border);
+}
+
+.inline { display: flex; align-items: center; gap: 10px; }
+
+.input {
+    width: 100%;
+    padding: 7px 12px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    background: var(--card);
+    color: var(--text);
+    font: inherit;
+    font-size: 0.9rem;
+}
+
+.input:focus {
+    outline: none;
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(216, 168, 88, 0.35);
+}
+
+/* dt cu <label> in el: ia stilul lui dt */
+.fields dt label { cursor: pointer; }
+
+.danger {
+    margin-top: 22px;
+    padding-top: 16px;
+    border-top: 1px dashed var(--border);
+}
+
+.remove {
+    padding: 7px 16px;
+    border: 1.5px solid #b3402f;
+    border-radius: 999px;
+    background: transparent;
+    color: #b3402f;
+    font: inherit;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.remove:hover:not(:disabled) { background: #b3402f; color: #fff; }
+.remove:disabled { opacity: 0.55; cursor: default; }

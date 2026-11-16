@@ -1,0 +1,31 @@
+.cancel {
+    max-width: 520px;
+    margin: 0 auto;
+    padding: 36px 20px;
+    text-align: center;
+    border: 2px dashed var(--border);
+    border-radius: 14px;
+    background: var(--ticket);
+    box-shadow: 0 8px 20px var(--shadow);
+}
+
+.stamp {
+    display: inline-block;
+    transform: rotate(-8deg);
+    padding: 6px 18px;
+    border: 3px solid #b3402f;
+    border-radius: 8px;
+    color: #b3402f;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+}
+
+.cancel h2 {
+    margin: 16px 0 4px;
+    font-family: var(--serif);
+    font-size: 1.7rem;
+    color: var(--accent-dark);
+}
+
+.cancel a { display: inline-block; margin-top: 8px; text-decoration: none; }

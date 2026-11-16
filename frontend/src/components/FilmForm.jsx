@@ -1,4 +1,5 @@
 import { useState } from "react";
+import styles from "./FilmForm.module.css";
 
 const TITLU_MAX = 100;
 
@@ -11,6 +12,8 @@ export default function FilmForm({ categorii, formate, onAdd }) {
   const [categorie, setCategorie] = useState(categorii[0]);
   const [eroare, setEroare] = useState("");
   const [trimite, setTrimite] = useState(false);
+  // pe ecrane mici formularul stă pliat și se deschide la apăsare
+  const [deschis, setDeschis] = useState(false);
 
   function valideaza() {
     const t = titlu.trim();
@@ -42,11 +45,20 @@ export default function FilmForm({ categorii, formate, onAdd }) {
   }
 
   return (
-    <form className="add-form" onSubmit={handleSubmit} noValidate data-testid="form">
+    <form className={deschis ? `${styles.addForm} ${styles.open}` : styles.addForm} onSubmit={handleSubmit} noValidate data-testid="form">
       {/* antetul biletului, ca la cardurile din listă */}
-      <div className="add-form-head">
-        <p className="ticket-no">New ticket · not in the catalog</p>
-        <h3 className="add-form-title">Add a custom title</h3>
+      <div className={styles.addFormHead}>
+        <p className={`ticket-no ${styles.headNo}`}>New ticket · not in the catalog</p>
+        <h3 className={styles.addFormTitle}>Add a custom title</h3>
+        <button
+          type="button"
+          className={styles.fold}
+          onClick={() => setDeschis((d) => !d)}
+          aria-expanded={deschis}
+          aria-label={deschis ? "Hide the form" : "Show the form"}
+        >
+          ▼
+        </button>
       </div>
       <label>
         Title
@@ -63,7 +75,7 @@ export default function FilmForm({ categorii, formate, onAdd }) {
           data-testid="form-title"
         />
       </label>
-      <div className="add-form-row">
+      <div className={styles.addFormRow}>
         <label>
           Format
           <select
@@ -94,11 +106,11 @@ export default function FilmForm({ categorii, formate, onAdd }) {
         </label>
       </div>
       {eroare && (
-        <p className="form-error" role="alert" data-testid="form-error">
+        <p className={styles.formError} role="alert" data-testid="form-error">
           {eroare}
         </p>
       )}
-      <div className="add-form-actions">
+      <div className={styles.addFormActions}>
         <button
           type="submit"
           className="btn btn-primary"

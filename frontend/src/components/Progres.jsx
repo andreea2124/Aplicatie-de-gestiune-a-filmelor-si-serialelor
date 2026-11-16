@@ -9,6 +9,7 @@ import {
   totalEpisoade,
   urmatorulEpisod,
 } from "../logica.js";
+import styles from "./Progres.module.css";
 
 const RITMURI = [1, 2, 3, 4, 5, 6, 8, 10];
 const formatData = new Intl.DateTimeFormat("en-GB", { weekday: "short", day: "numeric", month: "short" });
@@ -27,18 +28,18 @@ export default function Progres({ film, ocupat, onEpisoade }) {
   const inainte = sezoane.map((_, i) => sezoane.slice(0, i).reduce((a, b) => a + b, 0));
 
   return (
-    <div className="progress">
-      <div className="progress-head">
-        <span className="progress-now">
+    <div className={styles.progress}>
+      <div className={styles.progressHead}>
+        <span className={styles.progressNow}>
           {urmator ? `Next: S${urmator.sezon} · E${urmator.episod}` : "All episodes watched"}
         </span>
-        <span className="progress-count">
+        <span className={styles.progressCount}>
           {vazute}/{total} ep · {procent}%
         </span>
       </div>
 
       <div
-        className="progress-bar"
+        className={styles.progressBar}
         role="progressbar"
         aria-label={`Episodes watched of ${film.titlu}`}
         aria-valuemin={0}
@@ -51,20 +52,20 @@ export default function Progres({ film, ocupat, onEpisoade }) {
           return (
             <span
               key={i}
-              className="progress-season"
+              className={styles.progressSeason}
               style={{ flexGrow: n }}
               title={`Season ${i + 1}: ${pline}/${n} episodes`}
             >
-              <span className="progress-fill" style={{ width: `${(pline / n) * 100}%` }} />
+              <span className={styles.progressFill} style={{ width: `${(pline / n) * 100}%` }} />
             </span>
           );
         })}
       </div>
 
-      <div className="progress-actions">
+      <div className={styles.progressActions}>
         <button
           type="button"
-          className="ep-btn"
+          className={styles.epBtn}
           onClick={() => onEpisoade(vazute - 1)}
           disabled={ocupat || vazute === 0}
           aria-label={`One episode back for ${film.titlu}`}
@@ -76,7 +77,7 @@ export default function Progres({ film, ocupat, onEpisoade }) {
           <>
             <button
               type="button"
-              className="ep-btn ep-btn-main"
+              className={`${styles.epBtn} ${styles.epBtnMain}`}
               onClick={() => onEpisoade(vazute + 1)}
               disabled={ocupat}
             >
@@ -84,7 +85,7 @@ export default function Progres({ film, ocupat, onEpisoade }) {
             </button>
             <button
               type="button"
-              className="ep-btn"
+              className={styles.epBtn}
               onClick={() => onEpisoade(finalSezon(sezoane, vazute))}
               disabled={ocupat}
             >
@@ -95,7 +96,7 @@ export default function Progres({ film, ocupat, onEpisoade }) {
       </div>
 
       {ramase > 0 && (
-        <p className="binge">
+        <p className={styles.binge}>
           <label>
             Binge at{" "}
             <select value={peZi} onChange={(e) => setPeZi(Number(e.target.value))}>

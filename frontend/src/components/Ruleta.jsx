@@ -1,6 +1,7 @@
 // Ruleta din Random pick: banda de titluri se derulează și se oprește pe cel ales
 // (ultimul din bandă). onGata(true) se apelează când s-a oprit.
 import { useEffect, useState } from "react";
+import styles from "./Ruleta.module.css";
 
 export default function Ruleta({ banda, onGata }) {
   const [pornit, setPornit] = useState(false);
@@ -22,10 +23,10 @@ export default function Ruleta({ banda, onGata }) {
   const randuri = [...banda, banda[0]];
 
   return (
-    <div className="reel" aria-hidden="true">
-      <div className="reel-window">
+    <div className={styles.reel} aria-hidden="true">
+      <div className={styles.reelWindow}>
         <ul
-          className="reel-strip"
+          className={styles.reelStrip}
           style={{
             transform: pornit ? `translateY(calc(-${banda.length - 1} * var(--reel-h)))` : "none",
           }}

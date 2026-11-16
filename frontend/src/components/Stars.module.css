@@ -1,0 +1,20 @@
+.stars {
+    display: flex;
+    gap: 2px;
+    margin-top: 2px;
+}
+
+.star {
+    padding: 0 1px;
+    border: none;
+    background: none;
+    color: var(--border);
+    font-size: 1.35rem;
+    line-height: 1.2;
+    cursor: pointer;
+    transition: color 0.15s, transform 0.15s;
+}
+
+.star.on { color: var(--gold); text-shadow: 0 0 6px rgba(216, 168, 88, 0.55); }
+
+.star:hover { transform: scale(1.2); }

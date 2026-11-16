@@ -1,0 +1,87 @@
+/* ---------- PROGRES PE EPISOADE ---------- */
+
+.progress {
+    width: 100%;
+    margin-top: 10px;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--card);
+}
+
+.progress-head {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 4px 10px;
+    margin-bottom: 7px;
+    font-size: 0.78rem;
+}
+
+.progress-now { font-weight: 700; color: var(--accent-dark); letter-spacing: 0.04em; }
+.progress-count { color: var(--muted); font-variant-numeric: tabular-nums; }
+
+/* un segment pe sezon, separate de un spatiu de 2px */
+.progress-bar {
+    display: flex;
+    gap: 2px;
+    height: 8px;
+}
+
+.progress-season {
+    position: relative;
+    flex-basis: 0;
+    min-width: 3px;
+    overflow: hidden;
+    border-radius: 4px;
+    background: var(--accent-soft);
+}
+
+.progress-fill {
+    position: absolute;
+    inset: 0 auto 0 0;
+    border-radius: 4px;
+    background: var(--gold);
+    transition: width 0.35s ease;
+}
+
+.progress-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 9px;
+}
+
+.ep-btn {
+    min-width: 32px;
+    padding: 4px 11px;
+    border: 1.5px solid var(--border);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--accent-dark);
+    font: inherit;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+
+.ep-btn:hover:not(:disabled) { background: var(--accent-soft); border-color: var(--accent); }
+
+.ep-btn-main { border-color: var(--gold); }
+.ep-btn-main:hover:not(:disabled) { background: var(--gold); border-color: var(--gold); color: var(--velvet-dark); }
+
+.ep-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.binge {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 8px;
+    margin: 9px 0 0;
+    font-size: 0.78rem;
+    color: var(--muted);
+}
+
+.binge select { padding: 2px 6px; font-size: 0.78rem; }
+.binge b { color: var(--accent-dark); }

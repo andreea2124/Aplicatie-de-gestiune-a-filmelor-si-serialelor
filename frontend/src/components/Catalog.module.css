@@ -1,0 +1,133 @@
+.catalog {
+    max-height: 70vh;
+    overflow-y: auto;
+    padding-right: 8px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+}
+
+.catalog-group + .catalog-group {
+    margin-top: 26px;
+}
+
+.catalog-group h3 {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin: 0 0 6px;
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 600;
+    font-size: 1.3rem;
+    color: var(--accent);
+}
+
+.catalog-group h3::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, var(--gold), transparent);
+}
+
+.catalog-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+/* ---------- CAUTARE, FILTRE, TABURI ---------- */
+
+.search-input {
+    width: 100%;
+    margin-bottom: 14px;
+    padding: 11px 16px;
+    border: 1.5px solid var(--border);
+    border-radius: 999px;
+    font: inherit;
+    color: var(--text);
+    background: var(--ticket);
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(216, 168, 88, 0.35);
+}
+
+.chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 16px;
+}
+
+.chip {
+    padding: 4px 13px;
+    border: 1.5px solid var(--border);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--muted);
+    font: inherit;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.chip:hover { border-color: var(--accent); color: var(--accent-dark); }
+
+.chip[aria-pressed="true"] {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff1d6;
+}
+
+/* taburile pentru Movies / Series / Animation */
+.tabs {
+    display: flex;
+    margin-bottom: 18px;
+    border-bottom: 2px solid var(--border);
+}
+
+.tab {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 6px;
+    margin-bottom: -2px;
+    border: none;
+    border-bottom: 3px solid transparent;
+    background: transparent;
+    color: var(--muted);
+    font-family: var(--serif);
+    font-size: 1.05rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: color 0.2s, border-color 0.2s;
+}
+
+.tab:hover { color: var(--accent-dark); }
+
+.tab[aria-pressed="true"] {
+    color: var(--accent-dark);
+    border-bottom-color: var(--gold);
+}
+
+.tab-count {
+    min-width: 24px;
+    padding: 0 7px;
+    border-radius: 999px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-family: var(--body);
+    font-size: 0.72rem;
+    font-weight: 700;
+    line-height: 1.7;
+}
+
+@media (max-width: 700px) {
+    .catalog { max-height: 60vh; }
+}

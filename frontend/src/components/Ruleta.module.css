@@ -1,0 +1,52 @@
+.reel {
+    --reel-h: 52px;
+    position: relative;
+    margin: 4px 0 14px;
+    padding: 6px 30px;
+    border: 3px solid var(--gold);
+    border-radius: 12px;
+    background: linear-gradient(180deg, var(--velvet-dark), var(--velvet) 50%, var(--velvet-dark));
+    box-shadow: 0 0 22px rgba(216, 168, 88, 0.35), inset 0 0 18px rgba(0, 0, 0, 0.6);
+}
+
+/* becurile de pe laterale, ca la marquee */
+.reel::before,
+.reel::after {
+    content: "";
+    position: absolute;
+    top: 10px;
+    bottom: 10px;
+    width: 8px;
+    background: radial-gradient(circle, #fff1c9 0 2.5px, transparent 3.5px) 0 0 / 8px 16px repeat-y;
+    filter: drop-shadow(0 0 4px var(--gold));
+    animation: bulbs 0.5s steps(1, end) infinite;
+}
+
+.reel::before { left: 9px; }
+.reel::after { right: 9px; animation-delay: 0.25s; }
+
+/* fereastra arata randul ales si cate o jumatate din vecini, estompate */
+.reel-window {
+    height: calc(var(--reel-h) * 2);
+    overflow: hidden;
+    mask-image: linear-gradient(transparent, #000 32%, #000 68%, transparent);
+}
+
+.reel-strip {
+    margin: 0;
+    padding: calc(var(--reel-h) / 2) 0 0;
+    list-style: none;
+    transition: transform 2.8s cubic-bezier(0.12, 0.7, 0.12, 1);
+}
+
+.reel-strip li {
+    height: var(--reel-h);
+    overflow: hidden;
+    font-family: var(--serif);
+    font-size: 1.25rem;
+    font-weight: 700;
+    line-height: var(--reel-h);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    color: #fff1d6;
+}

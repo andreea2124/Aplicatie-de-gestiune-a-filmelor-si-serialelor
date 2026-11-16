@@ -1,0 +1,104 @@
+.random-dialog {
+    width: min(460px, calc(100vw - 32px));
+    padding: 34px 28px 26px;
+    border: 1px solid var(--border);
+    border-top: 8px solid var(--accent);
+    border-radius: 10px;
+    background: var(--card);
+    color: var(--text);
+    text-align: center;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+}
+
+.random-dialog::backdrop {
+    background: rgba(26, 12, 8, 0.72);
+    backdrop-filter: blur(3px);
+}
+
+.random-dialog h2 {
+    margin: 0 0 6px;
+    font-family: var(--serif);
+    font-size: 1.8rem;
+    color: var(--accent-dark);
+}
+
+.dialog-step {
+    margin: 0 0 18px;
+    font-family: var(--serif);
+    font-style: italic;
+    color: var(--muted);
+}
+
+.option-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 10px;
+    margin-bottom: 18px;
+}
+
+.option {
+    padding: 14px 10px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    background: var(--ticket);
+    color: var(--accent-dark);
+    font-family: var(--serif);
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s, border-color 0.2s, transform 0.15s;
+}
+
+.option:hover:not(:disabled) {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff1d6;
+    transform: translateY(-2px);
+}
+
+.option:disabled { opacity: 0.4; cursor: default; }
+
+.option-any {
+    border-style: dashed;
+    border-color: var(--gold);
+}
+
+.link-btn {
+    margin-top: 6px;
+    padding: 4px 8px;
+    border: none;
+    background: none;
+    color: var(--muted);
+    font: inherit;
+    font-size: 0.85rem;
+    cursor: pointer;
+}
+
+.link-btn:hover { color: var(--accent-dark); text-decoration: underline; }
+
+.pick-meta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin: 0 0 22px;
+    color: var(--muted);
+    font-size: 0.9rem;
+}
+
+.actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+
+.pick-meta { min-height: 1.6em; opacity: 0; transition: opacity 0.4s; }
+.pick-meta.shown { opacity: 1; }
+
+/* optiune cu o linie mica dedesubt (ex. "86 titles") */
+.option small {
+    display: block;
+    margin-top: 2px;
+    font-family: var(--body);
+    font-size: 0.72rem;
+    font-weight: 400;
+    color: var(--muted);
+}
+
+.option:hover:not(:disabled) small { color: #f3dfc2; }

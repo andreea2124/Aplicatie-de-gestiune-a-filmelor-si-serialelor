@@ -1,0 +1,145 @@
+/* formularul "Add a custom title": un bilet necompletat, ca cele din My List */
+/* banda pe toata latimea, deasupra panourilor: titlu, format+categorie si buton pe un rand */
+.add-form {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1.2fr) auto;
+    align-items: end;
+    gap: 8px 14px;
+    margin-bottom: 22px;
+    padding: 10px 16px 12px 32px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background:
+        linear-gradient(135deg, var(--sheen), transparent 55%),
+        var(--ticket);
+    box-shadow: 0 3px 8px var(--shadow);
+}
+
+/* marginea perforata din stanga, ca la .item-card */
+.add-form::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 14px;
+    border-radius: 9px 0 0 9px;
+    background:
+        radial-gradient(circle, var(--ticket) 0 2.5px, transparent 3px) center 0 / 14px 14px repeat-y,
+        var(--accent);
+}
+
+.add-form-head { grid-column: 1 / -1; display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 14px; }
+
+.head-no { margin: 0; }
+
+.add-form-title {
+    margin: 0;
+    font-family: var(--serif);
+    font-size: 1.1rem;
+    font-weight: 700;
+    line-height: 1.25;
+    color: var(--accent-dark);
+}
+
+.add-form label {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    flex: 1;
+    min-width: 0;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+.add-form input,
+.add-form select {
+    width: 100%;
+    padding: 7px 12px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    background: var(--card);
+    color: var(--text);
+    font: inherit;
+    font-size: 0.9rem;
+    letter-spacing: normal;
+    text-transform: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+/* sageata listelor desenata din doua gradiente, ca sa urmeze culorile temei */
+.add-form select {
+    appearance: none;
+    padding-right: 36px;
+    background:
+        linear-gradient(45deg, transparent 50%, var(--muted) 50%) calc(100% - 19px) 50% / 6px 6px no-repeat,
+        linear-gradient(135deg, var(--muted) 50%, transparent 50%) calc(100% - 13px) 50% / 6px 6px no-repeat,
+        var(--card);
+    cursor: pointer;
+}
+
+.add-form input::placeholder { color: var(--muted); opacity: 0.75; }
+
+.add-form input:hover,
+.add-form select:hover { border-color: var(--accent); }
+
+.add-form input:focus,
+.add-form select:focus {
+    outline: none;
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(216, 168, 88, 0.35);
+}
+
+.add-form input[aria-invalid="true"] { border-color: #b3402f; }
+
+.add-form-row { display: flex; gap: 12px; }
+
+.add-form-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+
+/* butonul de trimitere: .btn-primary al interfetei, putin mai mare */
+.add-form :global(.btn-primary) {
+    padding: 7px 18px;
+    font-size: 0.85rem;
+}
+
+.form-error {
+    grid-column: 1 / -1;
+    margin: 0;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #b3402f;
+}
+
+.add-form button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+@media (max-width: 700px) {
+    .add-form { grid-template-columns: minmax(0, 1fr); align-items: stretch; }
+}
+
+/* butonul care pliaza formularul: apare doar pe ecrane mici */
+.fold {
+    display: none;
+    margin-left: auto;
+    padding: 2px 10px;
+    border: 0;
+    background: none;
+    color: var(--accent);
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: transform 0.25s;
+}
+
+.add-form.open .fold { transform: rotate(180deg); }
+
+@media (max-width: 700px) {
+    .fold { display: block; }
+    .add-form:not(.open) > :not(.add-form-head) { display: none; }
+    .add-form-head { flex-wrap: nowrap; }
+}

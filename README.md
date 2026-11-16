@@ -183,4 +183,4 @@ Details per stage: see the `ai-log/` folder.
 - [x] **S8-R5** Each component has its own `.module.css` file, and `index.css` only has shared styles.
 - [x] **S8-R6** The `data-testid` attributes from tables 7.3 and 8.2 are present, and the detail route is `/<resource>/:id` (`/lista/:id`), with the resource from `tw.json`.
 - [x] **S8-R7** The README has the stage section, and `ai-log/etapa-08.md` is filled in.
-- [ ] **S8-R8** The commit `Stage 8: ...` is published on GitHub.
+- [x] **S8-R8** The commit `Stage 8: ...` is published on GitHub.

@@ -842,15 +842,70 @@ select {
 
 .btn:disabled { opacity: 0.55; cursor: default; }
 
+/* formularul "Add a custom title": un card cu banda unei clapte de film deasupra */
 .add-form {
+    position: relative;
     display: flex;
     flex-direction: column;
     gap: 14px;
-    margin-bottom: 20px;
-    padding: 18px;
-    border: 1.5px dashed var(--border);
-    border-radius: 10px;
-    background: var(--ticket);
+    margin-bottom: 22px;
+    padding: 38px 20px 20px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    background:
+        radial-gradient(ellipse at 100% 0%, rgba(216, 168, 88, 0.16), transparent 55%),
+        var(--ticket);
+    box-shadow: 0 10px 24px var(--shadow), inset 0 1px 0 var(--sheen);
+}
+
+/* banda clapetei: dungi oblice aurii pe catifea, cu doua "balamale" */
+.clapper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 18px;
+    background: repeating-linear-gradient(
+        -55deg,
+        var(--velvet-dark) 0 16px,
+        var(--gold) 16px 32px
+    );
+    border-bottom: 2px solid var(--velvet-dark);
+}
+
+.clapper::before,
+.clapper::after {
+    content: "";
+    position: absolute;
+    top: 5px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #fff1c9;
+    box-shadow: 0 0 6px var(--gold);
+}
+
+.clapper::before { left: 10px; }
+.clapper::after { right: 10px; }
+
+.add-form-head { margin-bottom: 2px; }
+
+.add-form-title {
+    margin: 0;
+    font-family: var(--serif);
+    font-size: 1.3rem;
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--accent-dark);
+}
+
+.add-form-kicker {
+    margin: 2px 0 0;
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 0.92rem;
+    color: var(--muted);
 }
 
 .add-form label {
@@ -858,30 +913,49 @@ select {
     flex-direction: column;
     gap: 6px;
     flex: 1;
-    font-size: 0.78rem;
-    font-weight: 600;
-    letter-spacing: 0.1em;
+    min-width: 0;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
     color: var(--muted);
 }
 
 .add-form input,
 .add-form select {
-    padding: 10px 12px;
+    width: 100%;
+    padding: 11px 14px;
     border: 1.5px solid var(--border);
-    border-radius: 6px;
+    border-radius: 8px;
     background: var(--card);
     color: var(--text);
     font: inherit;
     font-size: 0.95rem;
     letter-spacing: normal;
     text-transform: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
 }
+
+/* sageata listelor desenata din doua gradiente, ca sa urmeze culorile temei */
+.add-form select {
+    appearance: none;
+    padding-right: 36px;
+    background:
+        linear-gradient(45deg, transparent 50%, var(--muted) 50%) calc(100% - 19px) 50% / 6px 6px no-repeat,
+        linear-gradient(135deg, var(--muted) 50%, transparent 50%) calc(100% - 13px) 50% / 6px 6px no-repeat,
+        var(--card);
+    cursor: pointer;
+}
+
+.add-form input::placeholder { color: var(--muted); opacity: 0.75; }
+
+.add-form input:hover,
+.add-form select:hover { border-color: var(--accent); }
 
 .add-form input:focus,
 .add-form select:focus {
     outline: none;
-    border-color: var(--accent);
+    border-color: var(--gold);
     box-shadow: 0 0 0 3px rgba(216, 168, 88, 0.35);
 }
 
@@ -891,21 +965,33 @@ select {
 
 .add-form-actions { display: flex; flex-wrap: wrap; gap: 10px; }
 
+/* butonul de trimitere: pastila aurie, pe toata latimea */
+.add-form .btn-primary {
+    flex: 1;
+    padding: 11px 20px;
+    border: none;
+    background: linear-gradient(135deg, var(--gold), #b9823f);
+    color: var(--velvet-dark);
+    font-family: var(--serif);
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    box-shadow: 0 6px 16px rgba(216, 168, 88, 0.35);
+    transition: transform 0.15s, box-shadow 0.2s, opacity 0.2s;
+}
+
+.add-form .btn-primary:hover:not(:disabled) {
+    background: linear-gradient(135deg, #e6bb6d, var(--gold));
+    color: var(--velvet-dark);
+    transform: translateY(-1px);
+    box-shadow: 0 10px 22px rgba(216, 168, 88, 0.5);
+}
+
 .form-error {
     margin: 0;
     font-size: 0.85rem;
     font-weight: 500;
     color: #b3402f;
-}
-
-/* Etapa 7: formularul e mereu vizibil, deasupra listei */
-.add-form-title {
-    margin: 0;
-    font-size: 0.85rem;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--accent-dark);
 }
 
 /* Etapa 7: buton dezactivat cât timp se trimite */
@@ -1317,4 +1403,358 @@ select {
     border: 1px solid var(--error-border);
     border-radius: 8px;
     padding: 10px 12px;
+}
+
+/* ---------- PROGRES PE EPISOADE ---------- */
+
+.progress {
+    width: 100%;
+    margin-top: 10px;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--card);
+}
+
+.progress-head {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 4px 10px;
+    margin-bottom: 7px;
+    font-size: 0.78rem;
+}
+
+.progress-now { font-weight: 700; color: var(--accent-dark); letter-spacing: 0.04em; }
+.progress-count { color: var(--muted); font-variant-numeric: tabular-nums; }
+
+/* un segment pe sezon, separate de un spatiu de 2px */
+.progress-bar {
+    display: flex;
+    gap: 2px;
+    height: 8px;
+}
+
+.progress-season {
+    position: relative;
+    flex-basis: 0;
+    min-width: 3px;
+    overflow: hidden;
+    border-radius: 4px;
+    background: var(--accent-soft);
+}
+
+.progress-fill {
+    position: absolute;
+    inset: 0 auto 0 0;
+    border-radius: 4px;
+    background: var(--gold);
+    transition: width 0.35s ease;
+}
+
+.progress-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 9px;
+}
+
+.ep-btn {
+    min-width: 32px;
+    padding: 4px 11px;
+    border: 1.5px solid var(--border);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--accent-dark);
+    font: inherit;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+
+.ep-btn:hover:not(:disabled) { background: var(--accent-soft); border-color: var(--accent); }
+
+.ep-btn-main { border-color: var(--gold); }
+.ep-btn-main:hover:not(:disabled) { background: var(--gold); border-color: var(--gold); color: var(--velvet-dark); }
+
+.ep-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.binge {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 8px;
+    margin: 9px 0 0;
+    font-size: 0.78rem;
+    color: var(--muted);
+}
+
+.binge select { padding: 2px 6px; font-size: 0.78rem; }
+.binge b { color: var(--accent-dark); }
+
+/* ---------- PLOT WRAPPED (statistici) ---------- */
+
+.stats-btn { margin-left: 10px; }
+.stats-btn:disabled { opacity: 0.5; cursor: default; box-shadow: none; }
+
+/* fereastra are mereu fundalul de catifea al antetului, in ambele teme */
+.stats-dialog {
+    width: min(680px, calc(100vw - 32px));
+    max-height: calc(100vh - 40px);
+    padding: 34px 30px 28px;
+    border: 2px solid var(--gold);
+    border-radius: 14px;
+    background:
+        radial-gradient(ellipse at 50% 0%, rgba(216, 168, 88, 0.3), transparent 60%),
+        linear-gradient(180deg, var(--velvet-dark), var(--velvet));
+    color: #f6ead8;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+}
+
+.stats-dialog::backdrop {
+    background: rgba(26, 12, 8, 0.78);
+    backdrop-filter: blur(3px);
+}
+
+.stats-dialog .dialog-close { color: #d9c2a7; }
+.stats-dialog .dialog-close:hover { background: rgba(216, 168, 88, 0.2); color: #fff1d6; }
+
+.stats-kicker {
+    margin: 0;
+    font-family: var(--display);
+    font-size: 1rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold);
+}
+
+.stats-dialog h2 {
+    margin: 0 0 20px;
+    font-family: var(--serif);
+    font-size: 1.9rem;
+    line-height: 1.15;
+    color: #fff1d6;
+}
+
+.stats-empty { margin: 0; font-family: var(--serif); font-style: italic; color: #d9c2a7; }
+
+/* fiecare bloc apare pe rand: --i e pozitia lui */
+.stats-hero,
+.stats-tile,
+.stats-section {
+    animation: stats-in 0.6s ease both;
+    animation-delay: calc(var(--i, 0) * 0.12s);
+}
+
+@keyframes stats-in {
+    from { opacity: 0; transform: translateY(14px); }
+}
+
+.stats-hero {
+    margin-bottom: 14px;
+    padding: 22px;
+    border-radius: 12px;
+    text-align: center;
+    background: rgba(216, 168, 88, 0.12);
+    border: 1px solid rgba(216, 168, 88, 0.4);
+}
+
+.stats-label {
+    margin: 0 0 4px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #d9c2a7;
+}
+
+.stats-big {
+    margin: 0;
+    font-family: var(--display);
+    font-size: clamp(2.6rem, 9vw, 4rem);
+    line-height: 1.1;
+    color: var(--gold);
+    text-shadow: 0 0 24px rgba(216, 168, 88, 0.45);
+    font-variant-numeric: tabular-nums;
+}
+
+.stats-big small { font-size: 0.45em; margin-left: 2px; }
+
+.stats-note { margin: 6px 0 0; font-family: var(--serif); font-style: italic; color: #f6ead8; }
+
+.stats-tiles,
+.stats-highlights {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+.stats-tile {
+    padding: 14px;
+    border-radius: 10px;
+    background: rgba(255, 241, 214, 0.06);
+    border: 1px solid rgba(255, 241, 214, 0.12);
+}
+
+.stats-value {
+    margin: 0;
+    font-family: var(--serif);
+    font-size: 1.9rem;
+    font-weight: 700;
+    line-height: 1.1;
+    color: #fff1d6;
+    font-variant-numeric: tabular-nums;
+}
+
+.stats-value small { font-size: 0.55em; font-weight: 500; color: #d9c2a7; }
+.stats-value-text { font-size: 1.35rem; }
+
+.stats-section {
+    margin-bottom: 14px;
+    padding: 14px 16px;
+    border-radius: 10px;
+    background: rgba(255, 241, 214, 0.06);
+    border: 1px solid rgba(255, 241, 214, 0.12);
+}
+
+.stats-section h3 {
+    margin: 0 0 10px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #d9c2a7;
+}
+
+/* bare orizontale: o singura serie, o singura culoare, valoarea scrisa la capat */
+.stats-bars { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+
+.stats-bars li {
+    display: grid;
+    grid-template-columns: 76px 1fr 28px;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.85rem;
+}
+
+.bar-label { color: #f6ead8; }
+.bar-value { text-align: right; font-weight: 700; color: #fff1d6; font-variant-numeric: tabular-nums; }
+.bar-track { height: 10px; }
+
+.bar-fill {
+    display: block;
+    height: 100%;
+    min-width: 6px;
+    border-radius: 0 4px 4px 0;
+    background: var(--gold);
+    transform-origin: left;
+    animation: bar-grow 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+    animation-delay: 0.7s;
+}
+
+@keyframes bar-grow {
+    from { transform: scaleX(0); }
+}
+
+.stats-bars li:hover .bar-fill { background: #f0c777; }
+
+.stats-formats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 22px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    color: #f6ead8;
+}
+
+.stats-formats li { display: flex; align-items: center; gap: 8px; }
+.stats-formats b { font-size: 1.15rem; color: #fff1d6; }
+
+.format-dot { width: 10px; height: 10px; border-radius: 50%; }
+.dot-movie { background: #e08a6c; }
+.dot-series { background: #c9a58f; }
+.dot-animation { background: #e0b25a; }
+
+.stats-pick {
+    margin: 0;
+    font-family: var(--serif);
+    font-size: 1.05rem;
+    font-weight: 700;
+    line-height: 1.25;
+    color: #fff1d6;
+}
+
+.stats-sub { margin: 4px 0 0; font-size: 0.85rem; color: var(--gold); }
+
+.stats-footnote { margin: 4px 0 0; font-size: 0.78rem; font-style: italic; color: #d9c2a7; }
+
+/* ---------- RULETA (Random pick) ---------- */
+
+.reel {
+    --reel-h: 52px;
+    position: relative;
+    margin: 4px 0 14px;
+    padding: 6px 30px;
+    border: 3px solid var(--gold);
+    border-radius: 12px;
+    background: linear-gradient(180deg, var(--velvet-dark), var(--velvet) 50%, var(--velvet-dark));
+    box-shadow: 0 0 22px rgba(216, 168, 88, 0.35), inset 0 0 18px rgba(0, 0, 0, 0.6);
+}
+
+/* becurile de pe laterale, ca la marquee */
+.reel::before,
+.reel::after {
+    content: "";
+    position: absolute;
+    top: 10px;
+    bottom: 10px;
+    width: 8px;
+    background: radial-gradient(circle, #fff1c9 0 2.5px, transparent 3.5px) 0 0 / 8px 16px repeat-y;
+    filter: drop-shadow(0 0 4px var(--gold));
+    animation: bulbs 0.5s steps(1, end) infinite;
+}
+
+.reel::before { left: 9px; }
+.reel::after { right: 9px; animation-delay: 0.25s; }
+
+/* fereastra arata randul ales si cate o jumatate din vecini, estompate */
+.reel-window {
+    height: calc(var(--reel-h) * 2);
+    overflow: hidden;
+    mask-image: linear-gradient(transparent, #000 32%, #000 68%, transparent);
+}
+
+.reel-strip {
+    margin: 0;
+    padding: calc(var(--reel-h) / 2) 0 0;
+    list-style: none;
+    transition: transform 2.8s cubic-bezier(0.12, 0.7, 0.12, 1);
+}
+
+.reel-strip li {
+    height: var(--reel-h);
+    overflow: hidden;
+    font-family: var(--serif);
+    font-size: 1.25rem;
+    font-weight: 700;
+    line-height: var(--reel-h);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    color: #fff1d6;
+}
+
+.pick-meta { min-height: 1.6em; opacity: 0; transition: opacity 0.4s; }
+.pick-meta.shown { opacity: 1; }
+
+/* text doar pentru cititoarele de ecran */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
 }

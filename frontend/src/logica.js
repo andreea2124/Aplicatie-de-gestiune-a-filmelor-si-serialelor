@@ -105,3 +105,117 @@ export function formateazaDurata(minute) {
   if (h === 0) return `${m}m`;
   return m === 0 ? `${h}h` : `${h}h ${m}m`;
 }
+
+// ---------- Episoade (seriale cu sezoane în catalog) ----------
+
+export function totalEpisoade(t) {
+  return t.sezoane ? t.sezoane.reduce((a, b) => a + b, 0) : 0;
+}
+
+// Câte episoade s-au văzut: toate, dacă titlul e bifat; altfel câmpul `episoade`.
+export function episoadeVazute(f) {
+  const total = totalEpisoade(f);
+  return f.vizionat ? total : Math.min(f.episoade ?? 0, total);
+}
+
+// Din numărul de episoade văzute -> sezonul și episodul următor (null = terminat).
+export function urmatorulEpisod(sezoane, vazute) {
+  let ramase = vazute;
+  for (let i = 0; i < sezoane.length; i++) {
+    if (ramase < sezoane[i]) return { sezon: i + 1, episod: ramase + 1 };
+    ramase -= sezoane[i];
+  }
+  return null;
+}
+
+// Câte episoade s-ar vedea după terminarea sezonului curent.
+export function finalSezon(sezoane, vazute) {
+  let suma = 0;
+  for (const n of sezoane) {
+    suma += n;
+    if (vazute < suma) return suma;
+  }
+  return suma;
+}
+
+// Modificarea trimisă la server când se schimbă numărul de episoade:
+// la ultimul episod titlul devine văzut, iar sub el redevine nevăzut.
+export function schimbareEpisoade(f, nou) {
+  const total = totalEpisoade(f);
+  const n = Math.max(0, Math.min(nou, total));
+  return { episoade: n, vizionat: n === total };
+}
+
+// Modificarea trimisă la bifare. Un serial terminat din episoade și debifat
+// pornește de la zero (altfel ar arăta toate episoadele văzute, dar nebifat).
+export function schimbareVizionat(f) {
+  const total = totalEpisoade(f);
+  if (f.vizionat && total > 0 && (f.episoade ?? 0) >= total) {
+    return { vizionat: false, episoade: 0 };
+  }
+  return { vizionat: !f.vizionat };
+}
+
+// În câte zile și la ce dată se termină `ramase` episoade, la `peZi` pe zi.
+export function dataTerminare(ramase, peZi, azi = new Date()) {
+  const zile = Math.ceil(ramase / peZi);
+  const data = new Date(azi);
+  data.setDate(data.getDate() + zile);
+  return { zile, data };
+}
+
+// ---------- Statistici ("Plot Wrapped") ----------
+
+// Minutele văzute dintr-un titlu: durata filmului sau episoadele văzute x durata unui episod.
+export function minuteVazute(f) {
+  if (f.sezoane) return episoadeVazute(f) * (f.durataEp ?? 0);
+  return f.vizionat ? f.durata ?? 0 : 0;
+}
+
+export function statistici(lista, categorii) {
+  const vazute = lista.filter((f) => f.vizionat);
+  const minute = lista.reduce((s, f) => s + minuteVazute(f), 0);
+  const episoade = lista.reduce((s, f) => s + (f.sezoane ? episoadeVazute(f) : 0), 0);
+  const notate = vazute.filter((f) => f.rating > 0);
+  const medie = notate.length ? notate.reduce((s, f) => s + f.rating, 0) / notate.length : 0;
+
+  const peCategorie = categorii
+    .map((c) => ({ categorie: c, n: vazute.filter((f) => f.categorie === c).length }))
+    .filter((c) => c.n > 0)
+    .sort((a, b) => b.n - a.n);
+
+  const peFormat = ["movie", "series", "animation"].map((format) => ({
+    format,
+    n: vazute.filter((f) => f.format === format).length,
+  }));
+
+  // cel mai bine notat, cel mai lung film văzut, serialul cu cele mai multe episoade văzute
+  const maxDupa = (arr, fn) => arr.reduce((best, f) => (!best || fn(f) > fn(best) ? f : best), null);
+  const topNotat = maxDupa(notate, (f) => f.rating);
+  const celMaiLungFilm = maxDupa(vazute.filter((f) => f.durata), (f) => f.durata);
+  const serialTop = maxDupa(lista.filter((f) => f.sezoane && episoadeVazute(f) > 0), episoadeVazute);
+  const faraDurata = vazute.filter((f) => !f.durata && !f.durataEp).length;
+
+  return {
+    total: lista.length,
+    vazute: vazute.length,
+    minute,
+    episoade,
+    medie,
+    notate: notate.length,
+    peCategorie,
+    peFormat,
+    topNotat,
+    celMaiLungFilm,
+    serialTop,
+    faraDurata,
+  };
+}
+
+// ---------- Random pick ca slot machine ----------
+
+// Banda ruletei: titluri la întâmplare dintre candidați, iar ultimul e cel ales.
+export function bandaRuleta(candidati, ales, lungime = 24, rng = Math.random) {
+  const banda = Array.from({ length: lungime - 1 }, () => candidati[Math.floor(rng() * candidati.length)]);
+  return [...banda, ales];
+}

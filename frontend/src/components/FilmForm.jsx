@@ -43,7 +43,12 @@ export default function FilmForm({ categorii, formate, onAdd }) {
 
   return (
     <form className="add-form" onSubmit={handleSubmit} noValidate data-testid="form">
-      <h3 className="add-form-title">Add a custom title</h3>
+      {/* banda de claptă de deasupra formularului */}
+      <div className="clapper" aria-hidden="true"></div>
+      <div className="add-form-head">
+        <h3 className="add-form-title">Add a custom title</h3>
+        <p className="add-form-kicker">Not in the catalog? Write it in yourself.</p>
+      </div>
       <label>
         Title
         <input
@@ -101,7 +106,7 @@ export default function FilmForm({ categorii, formate, onAdd }) {
           disabled={trimite}
           data-testid="form-submit"
         >
-          {trimite ? "Saving..." : "Add to My List"}
+          {trimite ? "Saving..." : "+ Add to My List"}
         </button>
       </div>
     </form>

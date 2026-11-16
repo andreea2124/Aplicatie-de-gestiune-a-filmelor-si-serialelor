@@ -1,15 +1,16 @@
 // Un singur film din listă, primit prin props, afișat ca un bilet de cinema.
-// onComuta / onSterge / onRating sunt opționale: fără ele, cardul doar afișează.
+// onComuta / onSterge / onRating / onEpisoade sunt opționale: fără ele, cardul doar afișează.
 // ocupat = o cerere pentru acest element e în curs (bifa și ștergerea sunt blocate).
 // Atributele data-testid sunt reperele pentru verificarea automată (Etapa 7).
 import { useState } from "react";
 import { areDetalii } from "../logica.js";
 import Detalii from "./Detalii.jsx";
+import Progres from "./Progres.jsx";
 import Stars from "./Stars.jsx";
 
 const ETICHETE_TIP = { movie: "Movie", series: "Series", animation: "Animation" };
 
-export default function FilmCard({ film, ocupat = false, onComuta, onSterge, onRating }) {
+export default function FilmCard({ film, ocupat = false, onComuta, onSterge, onRating, onEpisoade }) {
   const stare = film.vizionat ? "Watched" : "Unwatched";
   const [deschis, setDeschis] = useState(false);
   const idDetalii = `detalii-lista-${film.id}`;
@@ -35,6 +36,9 @@ export default function FilmCard({ film, ocupat = false, onComuta, onSterge, onR
             titlu={film.titlu}
             onSeteaza={(n) => onRating(film.id, n)}
           />
+        )}
+        {film.sezoane && onEpisoade && (
+          <Progres film={film} ocupat={ocupat} onEpisoade={(n) => onEpisoade(film.id, n)} />
         )}
         {areDetalii(film) && (
           <>

@@ -3,6 +3,7 @@ import Catalog from "./components/Catalog.jsx";
 import FilmForm from "./components/FilmForm.jsx";
 import FilmList from "./components/FilmList.jsx";
 import RandomPick from "./components/RandomPick.jsx";
+import Statistici from "./components/Statistici.jsx";
 import { createFilm, deleteFilm, fetchFilme, fetchLista, updateFilm } from "./api.js";
 import { CATEGORII, FORMATE } from "./data/catalog.js";
 import {
@@ -13,6 +14,8 @@ import {
   idsDinCatalog,
   inlocuieste,
   ratingNou,
+  schimbareEpisoade,
+  schimbareVizionat,
   sorteaza,
   stergeFilm,
 } from "./logica.js";
@@ -31,6 +34,7 @@ export default function App() {
   const [intro, setIntro] = useState(true);
   const [sortare, setSortare] = useState("adaugate");
   const [random, setRandom] = useState(false);
+  const [statsDeschise, setStatsDeschise] = useState(false);
   const [loading, setLoading] = useState(true);
   // eroarea de la încărcare (pagina nu are ce arăta) și eroarea unei acțiuni (lista rămâne)
   const [error, setError] = useState(null);
@@ -69,6 +73,8 @@ export default function App() {
   }, []);
 
   const deVazut = filme.filter((f) => !f.vizionat).length;
+  // lista cu detaliile din catalog (durată, sezoane), pentru afișare, episoade și statistici
+  const listaCompleta = completeazaDinCatalog(filme, catalog);
   const idsInLista = [...idsDinCatalog(filme), ...seAdauga];
 
   // Comutarea temei: state-ul pentru buton, atributul data-theme pentru CSS
@@ -115,9 +121,9 @@ export default function App() {
 
   function handleToggle(id) {
     if (idsOcupate.includes(id)) return; // o cerere pentru element e deja în curs
-    const film = filme.find((f) => f.id === id);
+    const film = listaCompleta.find((f) => f.id === id);
     cuCerere(setIdsOcupate, id, async () => {
-      const actualizat = await updateFilm(id, { vizionat: !film.vizionat });
+      const actualizat = await updateFilm(id, schimbareVizionat(film));
       setFilme((prev) => inlocuieste(prev, actualizat));
     });
   }
@@ -127,6 +133,16 @@ export default function App() {
     const film = filme.find((f) => f.id === id);
     cuCerere(setIdsOcupate, id, async () => {
       const actualizat = await updateFilm(id, { rating: ratingNou(film.rating ?? 0, n) });
+      setFilme((prev) => inlocuieste(prev, actualizat));
+    });
+  }
+
+  // Progresul pe episoade al unui serial; la ultimul episod titlul devine văzut.
+  function handleEpisoade(id, nou) {
+    if (idsOcupate.includes(id)) return;
+    const film = listaCompleta.find((f) => f.id === id);
+    cuCerere(setIdsOcupate, id, async () => {
+      const actualizat = await updateFilm(id, schimbareEpisoade(film, nou));
       setFilme((prev) => inlocuieste(prev, actualizat));
     });
   }
@@ -166,6 +182,14 @@ export default function App() {
         <div className="header-actions">
           <button type="button" className="random-btn" onClick={() => setRandom(true)}>
             Random pick
+          </button>
+          <button
+            type="button"
+            className="random-btn stats-btn"
+            onClick={() => setStatsDeschise(true)}
+            disabled={loading || Boolean(error)}
+          >
+            Your stats
           </button>
         </div>
       </header>
@@ -220,11 +244,12 @@ export default function App() {
                 </div>
               )}
               <FilmList
-                filme={sorteaza(completeazaDinCatalog(filme, catalog), sortare)}
+                filme={sorteaza(listaCompleta, sortare)}
                 idsOcupate={idsOcupate}
                 onComuta={handleToggle}
                 onSterge={handleDelete}
                 onRating={handleRating}
+                onEpisoade={handleEpisoade}
               />
             </section>
           </>
@@ -232,6 +257,14 @@ export default function App() {
       </main>
 
       <footer className="app-footer">Web Technologies Project</footer>
+
+      {statsDeschise && (
+        <Statistici
+          lista={listaCompleta}
+          categorii={CATEGORII}
+          onInchide={() => setStatsDeschise(false)}
+        />
+      )}
 
       {random && (
         <RandomPick

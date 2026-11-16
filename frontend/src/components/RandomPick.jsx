@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { alegeRandom, candidatiRecomandare } from "../logica.js";
+import { alegeRandom, bandaRuleta, candidatiRecomandare } from "../logica.js";
+import Ruleta from "./Ruleta.jsx";
 
 const ETICHETE_TIP = { movie: "Movie", series: "Series", animation: "Animation" };
 
@@ -18,6 +19,10 @@ export default function RandomPick({
   const [format, setFormat] = useState(null);
   const [categorie, setCategorie] = useState(null); // "" = orice categorie
   const [titlu, setTitlu] = useState(null);
+  // ruleta: banda de titluri, numărul rundei (o ruletă nouă la fiecare învârtire) și dacă s-a oprit
+  const [banda, setBanda] = useState([]);
+  const [runda, setRunda] = useState(0);
+  const [gata, setGata] = useState(false);
 
   useEffect(() => {
     if (dialog.current && !dialog.current.open) dialog.current.showModal();
@@ -25,9 +30,18 @@ export default function RandomPick({
 
   const candidati = (f, c) => candidatiRecomandare(catalog, lista, f, c);
 
+  // Alege titlul și pregătește banda care se oprește pe el.
+  function invarte(lista, exclus) {
+    const ales = alegeRandom(lista, exclus);
+    setTitlu(ales);
+    setBanda(ales ? bandaRuleta(lista, ales) : []);
+    setRunda((r) => r + 1);
+    setGata(false);
+  }
+
   function alegeCategoria(c) {
     setCategorie(c);
-    setTitlu(alegeRandom(candidati(format, c)));
+    invarte(candidati(format, c), null);
   }
 
   // titlurile manuale vin chiar din listă; cele din catalog se caută după catalogId
@@ -81,16 +95,21 @@ export default function RandomPick({
       {categorie !== null && titlu && (
         <div className="pick-result">
           <p className="dialog-step">Tonight you could watch</p>
-          <p className="pick-title">{titlu.titlu}</p>
-          <p className="pick-meta">
-            <span className={`badge badge-${titlu.format}`}>{ETICHETE_TIP[titlu.format]}</span>
-            <span>{titlu.categorie}</span>
+          <Ruleta key={runda} banda={banda} onGata={setGata} />
+          <p className={gata ? "pick-meta shown" : "pick-meta"} aria-live="polite">
+            {gata && (
+              <>
+                <span className="sr-only">{titlu.titlu}</span>
+                <span className={`badge badge-${titlu.format}`}>{ETICHETE_TIP[titlu.format]}</span>
+                <span>{titlu.categorie}</span>
+              </>
+            )}
           </p>
           <div className="add-form-actions">
             <button
               type="button"
               className="btn btn-primary"
-              disabled={inLista}
+              disabled={inLista || !gata}
               onClick={() => onAdauga(titlu)}
             >
               {inLista ? "✓ In My List" : "+ Add to My List"}
@@ -98,9 +117,10 @@ export default function RandomPick({
             <button
               type="button"
               className="btn"
-              onClick={() => setTitlu(alegeRandom(candidati(format, categorie), titlu))}
+              disabled={!gata}
+              onClick={() => invarte(candidati(format, categorie), titlu)}
             >
-              Pick another
+              {gata ? "Spin again" : "Spinning..."}
             </button>
           </div>
         </div>

@@ -203,3 +203,12 @@ Testing with curl (Git Bash):
 - [x] **S8-R6** The `data-testid` attributes from tables 7.3 and 8.2 are present, and the detail route is `/<resource>/:id` (`/lista/:id`), with the resource from `tw.json`.
 - [x] **S8-R7** The README has the stage section, and `ai-log/etapa-08.md` is filled in.
 - [x] **S8-R8** The commit `Stage 8: ...` is published on GitHub.
+
+## Stage 9: checklist
+- [x] **S9-R1** `npm run dev` in `backend/` starts the API on 3001 (`backend/package.json`, `src/server.js`; open `/health`).
+- [x] **S9-R2** All five routes answer with the right codes (`src/routes/lista.js`; curl commands above).
+- [x] **S9-R3** Invalid data returns 400 with a clear message (`src/validation.js`; POST with an empty title).
+- [x] **S9-R4** The React app works with json-server removed (`frontend/package.json`, `src/api.js`).
+- [x] **S9-R5** No CORS errors in the browser console (`src/app.js`, `cors`).
+- [x] **S9-R6** The README has the stage section, and `ai-log/etapa-09.md` is filled in.
+- [x] **S9-R7** The commit `Stage 9: ...` is published on GitHub.

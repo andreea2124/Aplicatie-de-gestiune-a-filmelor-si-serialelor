@@ -1,10 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ListaContext } from "./ListaContext.js";
-import { createFilm, deleteFilm, fetchFilme, fetchLista, updateFilm } from "./api.js";
+import { createFilm, createTitluCatalog, deleteFilm, fetchFilme, fetchLista, updateFilm } from "./api.js";
 import {
   completeazaDinCatalog,
   dinCatalog,
-  dinFormular,
   existaTitlu,
   idsDinCatalog,
   inlocuieste,
@@ -12,6 +11,7 @@ import {
   schimbareEpisoade,
   schimbareVizionat,
   stergeFilm,
+  titluDinFormular,
 } from "./logica.js";
 
 // Ține într-un singur loc My List și catalogul (de la server) și toate acțiunile asupra lor,
@@ -30,6 +30,8 @@ export default function ListaProvider({ children }) {
   // mesajul scurt de jos: { prefix, titlu, text, actiune? }
   const [toast, setToast] = useState(null);
   const timerToast = useRef(null);
+  // filtrul de status din My List; stă aici ca să-l poată schimba și cifrele din antet (Layout)
+  const [statusLista, setStatusLista] = useState("toate");
 
   // Rulează o singură dată: catalogul și lista, în paralel
   useEffect(() => {
@@ -73,6 +75,18 @@ export default function ListaProvider({ children }) {
   const listaCompleta = completeazaDinCatalog(filme, catalog);
   const idsInLista = [...idsDinCatalog(filme), ...seAdauga];
 
+  // Serverul ține datele în memorie: după o repornire, ce arată pagina nu mai există acolo.
+  // Atunci se aduc din nou lista și catalogul, ca pagina să arate ce are serverul.
+  async function sincronizeazaCuServerul() {
+    try {
+      const [dateCatalog, dateLista] = await Promise.all([fetchFilme(), fetchLista()]);
+      setCatalog(dateCatalog);
+      setFilme(dateLista);
+    } catch {
+      // serverul nu răspunde deloc: rămâne mesajul de eroare de mai jos
+    }
+  }
+
   // Rulează o cerere marcând cheia ca ocupată; eroarea apare deasupra listei.
   async function cuCerere(setOcupate, cheie, actiune) {
     setOcupate((prev) => [...prev, cheie]);
@@ -80,7 +94,13 @@ export default function ListaProvider({ children }) {
       await actiune();
       setEroareActiune(null);
     } catch (err) {
-      setEroareActiune(err.message);
+      if (err.status === 404) {
+        // elementul nu mai există pe server (de exemplu a fost repornit): lista se reîncarcă
+        await sincronizeazaCuServerul();
+        setEroareActiune("the item no longer exists on the server (it may have been restarted), so the list was refreshed.");
+      } else {
+        setEroareActiune(err.message);
+      }
     } finally {
       setOcupate((prev) => prev.filter((k) => k !== cheie));
     }
@@ -94,7 +114,14 @@ export default function ListaProvider({ children }) {
     if (existaTitlu(catalog, date.titlu, date.format)) {
       throw new Error("This title is already in the catalog - add it from there.");
     }
-    const creat = await createFilm(dinFormular(date)); // serverul întoarce elementul cu id
+    // Titlul intră întâi în catalog (cu detaliile găsite la TMDB, dacă s-a ales o sugestie), apoi în
+    // My List, ca orice titlu din catalog; elementul din listă primește doar catalogId + câmpurile de bază.
+    const intrare = await createTitluCatalog(titluDinFormular(date));
+    setCatalog((prev) => (prev.some((t) => t.id === intrare.id) ? prev : [...prev, intrare]));
+    if (idsInLista.includes(intrare.id)) {
+      throw new Error("This title is already in your list.");
+    }
+    const creat = await createFilm({ ...dinCatalog(intrare), manual: true }); // serverul întoarce elementul cu id
     setFilme((prev) => [...prev, creat]);
     arataToast({ prefix: "✓", titlu: creat.titlu, text: "added to My List" });
   }
@@ -195,6 +222,8 @@ export default function ListaProvider({ children }) {
     handleDelete,
     stergeElement,
     sincronizeaza,
+    statusLista,
+    setStatusLista,
   };
 
   return <ListaContext.Provider value={value}>{children}</ListaContext.Provider>;

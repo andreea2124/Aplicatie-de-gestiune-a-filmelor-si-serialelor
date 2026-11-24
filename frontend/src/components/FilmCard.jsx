@@ -13,8 +13,12 @@ import styles from "./FilmCard.module.css";
 
 export default function FilmCard({ film, ocupat = false, onComuta, onSterge, onRating, onEpisoade }) {
   const stare = film.vizionat ? "Watched" : "Unwatched";
-  // progresul pe episoade stă închis și se deschide cu săgeata, ca detaliile din catalog
+  // bara de episoade se vede mereu; panoul complet (sezoane, binge) se deschide cu „More”
   const [deschis, setDeschis] = useState(false);
+  // ștampila „Watched” se animă doar când titlul e bifat acum, nu la fiecare afișare
+  const [stampila, setStampila] = useState(false);
+  const total = film.sezoane ? totalEpisoade(film) : 0;
+  const vazute = film.sezoane ? episoadeVazute(film) : 0;
   const idProgres = `progres-lista-${film.id}`;
   // "Watched on 12 Nov 2026" sau "Added 16 Nov 2026", plus unde se vede
   const data =
@@ -26,7 +30,10 @@ export default function FilmCard({ film, ocupat = false, onComuta, onSterge, onR
 
   return (
     <li
-      className={film.vizionat ? `${styles.itemCard} ${styles.watched}` : styles.itemCard}
+      className={[styles.itemCard, film.vizionat && styles.watched, stampila && styles.stamped]
+        .filter(Boolean)
+        .join(" ")}
+      onAnimationEnd={(e) => e.animationName.includes("stamp") && setStampila(false)}
       data-testid="item"
       data-id={film.id}
     >
@@ -61,16 +68,35 @@ export default function FilmCard({ film, ocupat = false, onComuta, onSterge, onR
         )}
         {film.notita && <span className={styles.note}>“{film.notita}”</span>}
         {film.sezoane && onEpisoade && (
-          <>
-            <button
-              type="button"
-              className={styles.expandLink}
-              onClick={() => setDeschis((d) => !d)}
-              aria-expanded={deschis}
-              aria-controls={idProgres}
-            >
-              Episodes · {episoadeVazute(film)}/{totalEpisoade(film)} <i aria-hidden="true">▼</i>
-            </button>
+          <div className={styles.episodes}>
+            <div className={styles.episodesTop}>
+              <span>
+                {vazute}/{total} episodes
+              </span>
+              {vazute < total && (
+                <button
+                  type="button"
+                  className={styles.epBtn}
+                  onClick={() => onEpisoade(film.id, vazute + 1)}
+                  disabled={ocupat}
+                  aria-label={`Watched one more episode of ${film.titlu}`}
+                >
+                  +1 episode
+                </button>
+              )}
+              <button
+                type="button"
+                className={styles.expandLink}
+                onClick={() => setDeschis((d) => !d)}
+                aria-expanded={deschis}
+                aria-controls={idProgres}
+              >
+                {deschis ? "Less" : "More"} <i aria-hidden="true">▼</i>
+              </button>
+            </div>
+            <div className={styles.miniBar} aria-hidden="true">
+              <i style={{ width: `${(vazute / total) * 100}%` }} />
+            </div>
             <div
               id={idProgres}
               className={deschis ? `${styles.collapse} ${styles.open}` : styles.collapse}
@@ -80,7 +106,7 @@ export default function FilmCard({ film, ocupat = false, onComuta, onSterge, onR
                 <Progres film={film} ocupat={ocupat} onEpisoade={(n) => onEpisoade(film.id, n)} />
               </div>
             </div>
-          </>
+          </div>
         )}
       </div>
       <div className={styles.ticketStub}>
@@ -92,7 +118,10 @@ export default function FilmCard({ film, ocupat = false, onComuta, onSterge, onR
               className={styles.statusCheck}
               checked={Boolean(film.vizionat)}
               disabled={ocupat}
-              onChange={() => onComuta(film.id)}
+              onChange={() => {
+                if (!film.vizionat) setStampila(true);
+                onComuta(film.id);
+              }}
               aria-label={`Watched: ${film.titlu}`}
               data-testid="item-toggle"
             />

@@ -1,0 +1,72 @@
+/* butonul mare de adăugare, ca „pastila” de văzut din pagina My List */
+.add-btn {
+    height: 44px;
+    padding: 0 20px;
+    border: 2px solid var(--accent);
+    border-radius: 999px;
+    background: var(--accent);
+    color: #fff1d6;
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s, transform 0.1s;
+}
+
+.add-btn:hover { background: var(--accent-dark); border-color: var(--accent-dark); color: var(--card); }
+.add-btn:active { transform: scale(0.96); }
+
+.in-list {
+    display: inline-flex;
+    align-items: center;
+    height: 44px;
+    padding: 0 18px;
+    border-radius: 999px;
+    background: var(--accent-soft);
+    color: var(--accent-dark);
+    font-weight: 700;
+}
+
+/* episoadele pe sezoane */
+.seasons {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 8px;
+}
+
+.seasons li {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--r-sm);
+    background: var(--ticket);
+    font-size: 0.85rem;
+}
+
+.seasons b { color: var(--accent-dark); }
+
+/* titluri asemănătoare: afișe mici, fiecare e link spre pagina lui */
+.similar {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+    gap: 12px;
+}
+
+.similar a {
+    display: block;
+    border-radius: 10px;
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.25s cubic-bezier(.2, .8, .2, 1), box-shadow 0.25s;
+}
+
+.similar a:hover,
+.similar a:focus-visible {
+    transform: translateY(-4px) rotate(-0.4deg);
+    box-shadow: var(--shadow-lg);
+}

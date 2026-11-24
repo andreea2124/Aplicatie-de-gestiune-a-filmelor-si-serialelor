@@ -21,9 +21,11 @@ function campuriNoi(acum) {
   return { adaugatLa: acum.toISOString(), notita: "", unde: "", revizionari: 0 };
 }
 
-// Elementul trimis la server pentru un titlu scris de utilizator în formular.
-export function dinFormular({ titlu, format, categorie }, acum = new Date()) {
-  return { titlu, format, categorie, vizionat: false, rating: 0, manual: true, ...campuriNoi(acum) };
+// Titlul trimis la catalog (POST /filme) pentru ce a scris utilizatorul în formular.
+// detalii (opțional) = ce a găsit TMDB pentru titlul ales din sugestii: an, durată sau sezoane,
+// descriere, id IMDb, poster. Elementul din My List se face apoi din intrarea din catalog, cu dinCatalog.
+export function titluDinFormular({ titlu, format, categorie, detalii }) {
+  return { ...detalii, titlu, format, categorie };
 }
 
 // Înlocuiește în listă elementul cu același id cu cel întors de server.
@@ -51,6 +53,17 @@ export function existaTitlu(titluri, titlu, format) {
   return titluri.some((f) => f.titlu.toLowerCase() === t && f.format === format);
 }
 
+// Text pentru căutare: litere mici, fără diacritice și fără punctuație, ca "dune prophecy"
+// să găsească "Dune: Prophecy" și "amelie" să găsească "Amélie".
+export function normalizeaza(text) {
+  return (text ?? "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
 // mod: "adaugate" (ordinea inițială), "nevazute" sau "vazute" (primele sus).
 // sort() e stabil, deci în fiecare grup rămâne ordinea în care au fost adăugate.
 export function sorteaza(lista, mod) {
@@ -61,10 +74,10 @@ export function sorteaza(lista, mod) {
 
 // Filtrează My List după text (în titlu sau în notiță) și după status: "toate", "nevazute", "vazute".
 export function filtreazaLista(lista, text, status) {
-  const q = text.trim().toLowerCase();
+  const q = normalizeaza(text);
   return lista.filter((f) => {
     const statusOk = status === "toate" || (status === "vazute" ? Boolean(f.vizionat) : !f.vizionat);
-    const textOk = !q || f.titlu.toLowerCase().includes(q) || (f.notita ?? "").toLowerCase().includes(q);
+    const textOk = !q || normalizeaza(f.titlu).includes(q) || normalizeaza(f.notita).includes(q);
     return statusOk && textOk;
   });
 }
@@ -83,9 +96,9 @@ export function formateazaData(iso) {
 
 // Filtrează catalogul după text (în titlu) și, opțional, după categorie.
 export function filtreazaCatalog(catalog, text, categorie) {
-  const q = text.trim().toLowerCase();
+  const q = normalizeaza(text);
   return catalog.filter(
-    (t) => (!categorie || t.categorie === categorie) && (!q || t.titlu.toLowerCase().includes(q)),
+    (t) => (!categorie || t.categorie === categorie) && (!q || normalizeaza(t.titlu).includes(q)),
   );
 }
 

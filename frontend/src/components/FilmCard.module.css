@@ -208,6 +208,17 @@ label.status::before,
     animation: none;
 }
 
+/* ștampila se aplică apăsat când titlul e bifat acum (pe etichetă, nu pe checkbox) */
+.item-card.watched.stamped .status {
+    animation: stamp 0.55s cubic-bezier(.2, .9, .3, 1.4);
+}
+
+@keyframes stamp {
+    0%   { transform: rotate(-6deg) scale(2.2); opacity: 0; }
+    60%  { transform: rotate(-6deg) scale(0.94); opacity: 1; }
+    100% { transform: rotate(-6deg) scale(1); opacity: 0.85; }
+}
+
 .item-card.watched label.status:hover {
     background: transparent;
     opacity: 1;
@@ -232,8 +243,15 @@ label.status::before,
 }
 
 .remove-btn:hover {
-    background: var(--accent-soft);
-    color: var(--accent-dark);
+    background: color-mix(in srgb, #b3402f 15%, transparent);
+    color: #b3402f;
+}
+
+/* cu mouse, butonul de ștergere apare doar când biletul e sub cursor (sau are focus) */
+@media (hover: hover) {
+    .remove-btn { opacity: 0; transition: opacity 0.2s, background 0.2s, color 0.2s; }
+    .item-card:hover .remove-btn,
+    .item-card:focus-within .remove-btn { opacity: 1; }
 }
 
 
@@ -245,7 +263,58 @@ label.status::before,
 .item-card h3 a { color: inherit; text-decoration: none; }
 .item-card h3 a:hover { text-decoration: underline; }
 
-/* "Episodes ▼": deschide progresul pe episoade (ca "Details" din catalog) */
+/* progresul pe episoade, mereu vizibil pe bilet: x/y, +1 episod și „More” pentru panoul complet */
+.episodes {
+    width: 100%;
+    margin-top: 2px;
+}
+
+.episodes-top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 10px;
+    margin-bottom: 5px;
+    font-size: 0.74rem;
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+}
+
+.episodes-top > span { margin-right: auto; }
+
+.ep-btn {
+    padding: 1px 10px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--card);
+    color: var(--accent-dark);
+    font: inherit;
+    font-size: 0.72rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+}
+
+.ep-btn:hover:not(:disabled) { background: var(--accent-soft); }
+.ep-btn:active:not(:disabled) { transform: scale(0.95); }
+.ep-btn:disabled { opacity: 0.6; cursor: progress; }
+
+.mini-bar {
+    height: 6px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: var(--accent-soft);
+}
+
+.mini-bar i {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, var(--accent), var(--gold));
+    transition: width 0.4s cubic-bezier(.2, .8, .2, 1);
+}
+
+/* "More ▼": deschide panoul complet de progres (sezoane, binge) */
 .expand-link {
     display: inline-flex;
     align-items: center;

@@ -1,80 +1,91 @@
-/* formularul "Add a custom title": un bilet necompletat, ca cele din My List */
-/* banda pe toata latimea, deasupra panourilor: titlu, format+categorie si buton pe un rand */
+/* formularul "Custom title": un bilet pe un singur rând, cu talonul în stânga */
 .add-form {
-    position: relative;
     display: grid;
-    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1.2fr) auto;
-    align-items: end;
-    gap: 8px 14px;
+    grid-template-columns: auto minmax(0, 1fr);
     margin-bottom: 22px;
-    padding: 10px 16px 12px 32px;
     border: 1px solid var(--border);
-    border-radius: 10px;
+    border-radius: var(--r-md);
     background:
         linear-gradient(135deg, var(--sheen), transparent 55%),
         var(--ticket);
-    box-shadow: 0 3px 8px var(--shadow);
+    box-shadow: var(--shadow-sm);
 }
 
-/* marginea perforata din stanga, ca la .item-card */
-.add-form::before {
+/* talonul: „Admit one / Custom title”, cu perforație spre câmpuri */
+.stub {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 10px 26px 10px 20px;
+    border-radius: var(--r-md) 0 0 var(--r-md);
+    background: var(--accent);
+    color: #fff1d6;
+    text-align: center;
+}
+
+.stub::after {
     content: "";
     position: absolute;
     top: 0;
     bottom: 0;
-    left: 0;
-    width: 14px;
-    border-radius: 9px 0 0 9px;
-    background:
-        radial-gradient(circle, var(--ticket) 0 2.5px, transparent 3px) center 0 / 14px 14px repeat-y,
-        var(--accent);
+    right: -6px;
+    width: 12px;
+    background: radial-gradient(circle at 6px 8px, var(--ticket) 4px, transparent 4.5px) 0 0 / 12px 16px repeat-y;
 }
 
-.add-form-head { grid-column: 1 / -1; display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 14px; }
-
-.head-no { margin: 0; }
+.admit {
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    opacity: 0.85;
+}
 
 .add-form-title {
     margin: 0;
     font-family: var(--serif);
-    font-size: 1.1rem;
+    font-size: 1.05rem;
     font-weight: 700;
     line-height: 1.25;
-    color: var(--accent-dark);
+    white-space: nowrap;
 }
 
-.add-form label {
+.fields {
     display: flex;
-    flex-direction: column;
-    gap: 3px;
-    flex: 1;
-    min-width: 0;
-    font-size: 0.72rem;
-    font-weight: 700;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--muted);
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px 12px 22px;
 }
 
-.add-form input,
-.add-form select {
-    width: 100%;
-    padding: 7px 12px;
+.fields label { display: block; }
+
+.title-field {
+    position: relative;
+    flex: 1 1 240px;
+}
+
+.fields input,
+.fields select {
+    height: 40px;
+    padding: 0 12px;
     border: 1.5px solid var(--border);
-    border-radius: 8px;
+    border-radius: var(--r-sm);
     background: var(--card);
     color: var(--text);
     font: inherit;
     font-size: 0.9rem;
-    letter-spacing: normal;
-    text-transform: none;
     transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-/* sageata listelor desenata din doua gradiente, ca sa urmeze culorile temei */
-.add-form select {
+.fields input { width: 100%; padding-right: 64px; }
+
+/* săgeata listelor desenată din două gradiente, ca să urmeze culorile temei */
+.fields select {
+    width: 150px;
     appearance: none;
-    padding-right: 36px;
+    padding-right: 34px;
     background:
         linear-gradient(45deg, transparent 50%, var(--muted) 50%) calc(100% - 19px) 50% / 6px 6px no-repeat,
         linear-gradient(135deg, var(--muted) 50%, transparent 50%) calc(100% - 13px) 50% / 6px 6px no-repeat,
@@ -82,33 +93,50 @@
     cursor: pointer;
 }
 
-.add-form input::placeholder { color: var(--muted); opacity: 0.75; }
+.fields input::placeholder { color: var(--muted); opacity: 0.8; }
 
-.add-form input:hover,
-.add-form select:hover { border-color: var(--accent); }
+.fields input:hover,
+.fields select:hover { border-color: var(--accent); }
 
-.add-form input:focus,
-.add-form select:focus {
+.fields input:focus,
+.fields select:focus {
     outline: none;
     border-color: var(--gold);
     box-shadow: 0 0 0 3px rgba(216, 168, 88, 0.35);
 }
 
-.add-form input[aria-invalid="true"] { border-color: #b3402f; }
+/* titlu gol: câmpul se colorează și tremură o dată */
+.fields input[aria-invalid="true"] {
+    border-color: #b3402f;
+    animation: shake 0.3s;
+}
 
-.add-form-row { display: flex; gap: 12px; }
+@keyframes shake {
+    25% { transform: translateX(-6px); }
+    75% { transform: translateX(6px); }
+}
 
-.add-form-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.counter {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.7rem;
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+    pointer-events: none;
+}
 
-/* butonul de trimitere: .btn-primary al interfetei, putin mai mare */
-.add-form :global(.btn-primary) {
-    padding: 7px 18px;
-    font-size: 0.85rem;
+.fields :global(.btn-primary) {
+    height: 40px;
+    padding: 0 20px;
+    border-radius: var(--r-sm);
+    font-size: 0.88rem;
 }
 
 .form-error {
-    grid-column: 1 / -1;
-    margin: 0;
+    flex-basis: 100%;
+    margin: -2px 0 0;
     font-size: 0.85rem;
     font-weight: 500;
     color: #b3402f;
@@ -119,18 +147,13 @@
     cursor: not-allowed;
 }
 
-@media (max-width: 700px) {
-    .add-form { grid-template-columns: minmax(0, 1fr); align-items: stretch; }
-}
-
-/* butonul care pliaza formularul: apare doar pe ecrane mici */
+/* butonul care pliază formularul: apare doar pe ecrane mici */
 .fold {
     display: none;
-    margin-left: auto;
-    padding: 2px 10px;
+    padding: 2px 8px;
     border: 0;
     background: none;
-    color: var(--accent);
+    color: inherit;
     font-size: 0.8rem;
     cursor: pointer;
     transition: transform 0.25s;
@@ -139,7 +162,116 @@
 .add-form.open .fold { transform: rotate(180deg); }
 
 @media (max-width: 700px) {
-    .fold { display: block; }
-    .add-form:not(.open) > :not(.add-form-head) { display: none; }
-    .add-form-head { flex-wrap: nowrap; }
+    .add-form { grid-template-columns: 1fr; }
+    .stub { flex-direction: row; align-items: center; gap: 10px; padding: 8px 14px; text-align: left; }
+    .stub::after { display: none; }
+    .fold { display: block; margin-left: auto; }
+    .add-form:not(.open) .fields { display: none; }
+    .fields { padding: 12px 14px; }
+    .fields label:not(.title-field) { flex: 1 1 120px; }
+    .fields select { width: 100%; }
+    .fields :global(.btn-primary) { flex: 1 1 100%; }
 }
+
+/* ---------- sugestii de la TMDB ---------- */
+
+.suggest {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
+    z-index: 15;
+    max-height: 340px;
+    margin: 0;
+    padding: 6px;
+    overflow-y: auto;
+    list-style: none;
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    background: var(--card);
+    box-shadow: var(--shadow-lg);
+    scrollbar-width: thin;
+}
+
+.option {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 6px 8px;
+    border-radius: var(--r-sm);
+    cursor: pointer;
+}
+
+.option.activ { background: var(--accent-soft); }
+
+.option img,
+.no-poster,
+.found img {
+    flex: none;
+    width: 34px;
+    height: 50px;
+    border-radius: 4px;
+    object-fit: cover;
+    background: var(--accent-soft);
+}
+
+.option-text,
+.found > span {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.option-text b,
+.found b {
+    font-family: var(--serif);
+    font-size: 0.95rem;
+    line-height: 1.25;
+    color: var(--accent-dark);
+}
+
+.option-text small,
+.found small {
+    font-size: 0.74rem;
+    color: var(--muted);
+}
+
+.credit {
+    padding: 6px 8px 2px;
+    font-size: 0.66rem;
+    letter-spacing: 0.08em;
+    text-align: right;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+/* detaliile găsite pentru titlul ales: un rând sub câmpuri */
+.found {
+    flex-basis: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0;
+    padding: 8px 12px;
+    border: 1px dashed var(--border);
+    border-radius: var(--r-sm);
+    background: color-mix(in srgb, var(--accent-soft) 55%, transparent);
+}
+
+.found a { color: var(--accent); font-weight: 600; }
+
+.remove-details {
+    margin-left: auto;
+    padding: 4px 12px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--card);
+    color: var(--muted);
+    font: inherit;
+    font-size: 0.76rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: color 0.2s, border-color 0.2s;
+}
+
+.remove-details:hover { color: #b3402f; border-color: #b3402f; }

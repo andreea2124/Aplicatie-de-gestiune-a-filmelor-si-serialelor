@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import Catalog from "../components/Catalog.jsx";
+import { Link, useNavigate } from "react-router-dom";
 import FilmForm from "../components/FilmForm.jsx";
 import FilmList from "../components/FilmList.jsx";
 import { CATEGORII, FORMATE } from "../constants.js";
@@ -13,11 +13,11 @@ let introTrecut = false;
 
 const STATUSURI = [
   { id: "toate", eticheta: "All" },
-  { id: "nevazute", eticheta: "Unwatched" },
+  { id: "nevazute", eticheta: "To watch" },
   { id: "vazute", eticheta: "Watched" },
 ];
 
-// Pagina principală: formularul pentru titlu propriu, Catalog și My List.
+// Pagina principală (/): My List și formularul pentru titlu propriu. Catalogul are pagina lui (/catalog).
 // Datele și acțiunile vin din ListaProvider (useLista).
 export default function FilmePage() {
   useTitlu("My List");
@@ -25,25 +25,25 @@ export default function FilmePage() {
     filme,
     catalog,
     listaCompleta,
-    idsInLista,
     deVazut,
     loading,
     error,
     eroareActiune,
     idsOcupate,
     handleAdd,
-    handleAdaugaDinCatalog,
     handleToggle,
     handleRating,
     handleEpisoade,
     handleDelete,
+    statusLista: status,
+    setStatusLista: setStatus,
   } = useLista();
+  const navigate = useNavigate();
 
   // cât timp rulează intrarea animată, cardurile au întârzieri pe poziție
   const [intro, setIntro] = useState(!introTrecut);
   const [sortare, setSortare] = useState("adaugate");
   const [text, setText] = useState("");
-  const [status, setStatus] = useState("toate");
 
   useEffect(() => {
     if (introTrecut) return;
@@ -69,7 +69,7 @@ export default function FilmePage() {
     return (
       <section className="panel">
         <p className="error" data-testid="error">
-          Could not load the data: {error}. Is <code>npm run api</code> running?
+          Could not load the data: {error}. Is the backend running (<code>npm run dev</code> in <code>backend/</code>)?
         </p>
       </section>
     );
@@ -80,29 +80,18 @@ export default function FilmePage() {
 
   return (
     <>
-      <FilmForm categorii={CATEGORII} formate={FORMATE} onAdd={handleAdd} />
+      <FilmForm categorii={CATEGORII} formate={FORMATE} catalog={catalog} onAdd={handleAdd} />
 
-      <div className={styles.grid}>
-        <section className="panel">
-          <h2>Catalog</h2>
-          <Catalog
-            catalog={catalog}
-            categorii={CATEGORII}
-            formate={FORMATE}
-            idsInLista={idsInLista}
-            onAdauga={handleAdaugaDinCatalog}
-          />
-        </section>
-
-        <section className={`panel ${styles.lista}`}>
-          <h2>My List</h2>
-          <div className={styles.listHead}>
-            <span>
-              {filme.length} {filme.length === 1 ? "item" : "items"} · {deVazut} unwatched
-            </span>
+      <section className="panel" id="my-list" aria-labelledby="titlu-lista">
+        <div className="panel-head">
+          <h2 id="titlu-lista">My List</h2>
+          <span className="panel-sub">
+            {filme.length} {filme.length === 1 ? "item" : "items"} · {deVazut} unwatched
+          </span>
+          <div className="panel-tools">
             {filme.length > 1 && (
               <label className={styles.sortLabel}>
-                Sort
+                <span className="sr-only">Sort</span>
                 <select value={sortare} onChange={(e) => setSortare(e.target.value)}>
                   <option value="adaugate">Order added</option>
                   <option value="nevazute">Unwatched first</option>
@@ -110,53 +99,53 @@ export default function FilmePage() {
                 </select>
               </label>
             )}
+            <Link to="/catalog" className="btn">
+              Browse the catalog &rarr;
+            </Link>
           </div>
-
-          {filme.length > 0 && (
-            <>
+        </div>
+        {filme.length > 0 && (
+          <div className={styles.tools}>
+            <label className="search-field">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+                <circle cx="11" cy="11" r="7" />
+                <path d="m20 20-3.5-3.5" />
+              </svg>
               <input
                 type="search"
-                className={styles.search}
                 value={text}
                 onChange={(e) => setText(e.target.value)}
                 placeholder="Search My List..."
                 aria-label="Search My List"
               />
-              <div className={styles.chips} role="group" aria-label="Filter by status">
-                {STATUSURI.map((s) => (
-                  <button
-                    key={s.id}
-                    type="button"
-                    className={styles.chip}
-                    aria-pressed={status === s.id}
-                    onClick={() => setStatus(s.id)}
-                  >
-                    {s.eticheta} {numere[s.id]}
-                  </button>
-                ))}
-              </div>
-            </>
-          )}
-
-          {eroareActiune && (
-            <p className={`error ${styles.eroare}`} role="alert" data-testid="error">
-              Could not save the change: {eroareActiune}
-            </p>
-          )}
-
-          <FilmList
-            filme={vizibile}
-            listaGoala={filme.length === 0}
-            idsOcupate={idsOcupate}
-            intro={intro}
-            onComuta={handleToggle}
-            onSterge={handleDelete}
-            onRating={handleRating}
-            onEpisoade={handleEpisoade}
-            onCatalog={() => document.getElementById("catalog-search")?.focus()}
-          />
-        </section>
-      </div>
+            </label>
+            <div className="segmented" role="group" aria-label="Filter by status">
+              {STATUSURI.map((s) => (
+                <button key={s.id} type="button" aria-pressed={status === s.id} onClick={() => setStatus(s.id)}>
+                  {s.eticheta}
+                  <span className="count">{numere[s.id]}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+        {eroareActiune && (
+          <p className={`error ${styles.eroare}`} role="alert" data-testid="error">
+            Could not save the change: {eroareActiune}
+          </p>
+        )}
+        <FilmList
+          filme={vizibile}
+          listaGoala={filme.length === 0}
+          idsOcupate={idsOcupate}
+          intro={intro}
+          onComuta={handleToggle}
+          onSterge={handleDelete}
+          onRating={handleRating}
+          onEpisoade={handleEpisoade}
+          onCatalog={() => navigate("/catalog", { state: { cauta: true } })}
+        />
+      </section>
     </>
   );
 }

@@ -1,7 +1,9 @@
 // Un titlu din catalog, cu buton de adăugare în My List și detalii care se deschid.
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { ETICHETE_TIP } from "../constants.js";
 import { areDetalii } from "../logica.js";
+import { zboara } from "../zbor.js";
 import Detalii from "./Detalii.jsx";
 import styles from "./CatalogItem.module.css";
 
@@ -11,14 +13,19 @@ export default function CatalogItem({ titlu, inLista, onAdauga }) {
 
   return (
     <li className={styles.catalogItem}>
-      <span className={styles.catalogTitle}>{titlu.titlu}</span>
+      <Link to={`/catalog/${titlu.id}`} className={styles.catalogTitle}>
+        {titlu.titlu}
+      </Link>
       <span className={`badge badge-${titlu.format}`}>
         {ETICHETE_TIP[titlu.format]}
       </span>
       <button
         type="button"
         className={styles.addBtn}
-        onClick={() => onAdauga(titlu)}
+        onClick={(e) => {
+          zboara(e.currentTarget, titlu.titlu);
+          onAdauga(titlu);
+        }}
         disabled={inLista}
         aria-label={inLista ? `${titlu.titlu} is in My List` : `Add ${titlu.titlu} to My List`}
       >

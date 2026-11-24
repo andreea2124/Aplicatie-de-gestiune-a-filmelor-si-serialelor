@@ -16,7 +16,7 @@ export default function DesprePage() {
         <div className={styles.mini}>
           <span aria-hidden="true">🎬</span>
           <b>Catalog</b>
-          <span>About 190 movies, series and animations to browse and search.</span>
+          <span>About 1200 movies, series and animations, with posters, to browse and search.</span>
         </div>
         <div className={styles.mini}>
           <span aria-hidden="true">🎟️</span>
@@ -29,7 +29,11 @@ export default function DesprePage() {
           <span>Can&apos;t decide? Let the reel choose your next watch.</span>
         </div>
       </div>
-      <p className={styles.stack}>Stack: React, Vite, React Router, json-server.</p>
+      <p className={styles.stack}>Stack: React, Vite, React Router, Node.js, Express.</p>
+      <p className={styles.stack}>
+        Title data: IMDb datasets, TVmaze and Wikipedia. Posters: <a href="https://www.themoviedb.org/" target="_blank" rel="noopener noreferrer">TMDB</a>
+        (this product uses the TMDB API but is not endorsed or certified by TMDB).
+      </p>
     </section>
   );
 }

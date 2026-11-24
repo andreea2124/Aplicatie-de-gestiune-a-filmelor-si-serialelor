@@ -1,0 +1,79 @@
+/* afișul generat: raport 2:3, text deschis peste gradient */
+.afis {
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    flex-direction: column;
+    aspect-ratio: 2 / 3;
+    padding: 10px 11px;
+    overflow: hidden;
+    border-radius: 10px;
+    color: #fff4e2;
+}
+
+.fundal {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+}
+
+/* granulație de film și vignetă, peste gradient */
+.afis::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background:
+        repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.035) 0 1px, transparent 1px 3px),
+        radial-gradient(ellipse at 50% 40%, transparent 40%, rgba(0, 0, 0, 0.45));
+}
+
+.an {
+    font-size: 0.62rem;
+    letter-spacing: 0.22em;
+    opacity: 0.85;
+}
+
+.titlu {
+    margin-top: auto;
+    font-family: var(--serif);
+    font-weight: 700;
+    font-size: 1.02rem;
+    line-height: 1.12;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
+    overflow-wrap: anywhere;
+}
+
+.meta {
+    margin-top: 6px;
+    font-size: 0.64rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    opacity: 0.85;
+}
+
+.mare { padding: 16px; border-radius: var(--r-md); }
+.mare .an { font-size: 0.75rem; }
+.mare .titlu { font-size: 1.7rem; }
+.mare .meta { font-size: 0.75rem; }
+
+/* posterul real: acoperă afișul desenat; apare cu un fade când s-a încărcat */
+.poster {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 0.4s;
+}
+
+.cu-poster .poster { opacity: 1; }
+
+/* cu poster real, textul desenat și vigneta dispar (posterul are deja titlul pe el) */
+.cu-poster .an,
+.cu-poster .titlu,
+.cu-poster .meta { opacity: 0; }
+
+.cu-poster::after { opacity: 0; }

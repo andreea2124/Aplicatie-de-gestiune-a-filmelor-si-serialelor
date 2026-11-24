@@ -1,0 +1,12 @@
+/* un rând de afișe „skeleton” cât timp se încarcă catalogul */
+.skeleton {
+    height: 260px;
+    border-radius: 10px;
+    background:
+        linear-gradient(90deg, var(--accent-soft), var(--ticket), var(--accent-soft)) 0 0 / 200% 100%;
+    animation: shimmer 1.4s linear infinite;
+}
+
+@keyframes shimmer {
+    to { background-position: -200% 0; }
+}

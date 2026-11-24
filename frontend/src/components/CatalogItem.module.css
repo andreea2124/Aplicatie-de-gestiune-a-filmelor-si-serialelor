@@ -16,7 +16,11 @@
     flex: 1;
     min-width: 0;
     font-weight: 500;
+    color: var(--text);
+    text-decoration: none;
 }
+
+.catalog-title:hover { color: var(--accent-dark); text-decoration: underline; }
 
 .add-btn {
     flex-shrink: 0;

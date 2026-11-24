@@ -1,82 +1,199 @@
-.detail { max-width: 640px; margin: 0 auto; }
+.detail { max-width: 1000px; margin: 0 auto; padding: 22px 26px 26px; }
 
 .back {
     display: inline-block;
-    margin-bottom: 14px;
+    margin-bottom: 16px;
     font-size: 0.9rem;
     font-weight: 600;
+    text-decoration: none;
+}
+
+.back:hover { text-decoration: underline; }
+
+/* afișul în stânga, informațiile în dreapta */
+.hero {
+    display: grid;
+    grid-template-columns: 230px minmax(0, 1fr);
+    gap: 32px;
+    align-items: start;
+}
+
+.poster {
+    position: sticky;
+    top: 80px;
+    border-radius: var(--r-md);
+    box-shadow: var(--shadow-lg);
+}
+
+.kicker {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+/* .hero h2 bate regula globală .panel h2 */
+.hero h2.title {
+    margin: 6px 0 14px;
+    font-family: var(--serif);
+    font-size: clamp(2rem, 4vw, 2.8rem);
+    line-height: 1.05;
+    color: var(--accent-dark);
 }
 
 .done { color: var(--muted); }
 
-.fields {
-    display: grid;
-    grid-template-columns: max-content 1fr;
-    align-items: center;
-    gap: 12px 24px;
-    margin: 0 0 20px;
+/* „fișa tehnică”: sezoane, episoade, durată, IMDb */
+.facts {
+    list-style: none;
+    margin: 0 0 16px;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
 }
 
-.fields dt {
-    font-size: 0.72rem;
-    font-weight: 700;
+.facts li {
+    padding: 8px 14px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--ticket);
+}
+
+.facts b {
+    display: block;
+    font-family: var(--serif);
+    font-size: 1.15rem;
+    color: var(--accent-dark);
+}
+
+.facts b a { color: inherit; }
+
+.facts span,
+.action-label,
+.personal label > span {
+    font-size: 0.68rem;
+    font-weight: 600;
     letter-spacing: 0.14em;
     text-transform: uppercase;
     color: var(--muted);
 }
 
-.fields dd { margin: 0; }
+.desc {
+    max-width: 62ch;
+    margin: 0 0 20px;
+    font-size: 1rem;
+}
 
+/* văzut, rating, re-vizionări */
+.actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 14px 22px;
+    padding: 14px 16px;
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    background: var(--ticket);
+}
+
+.action-group {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* checkbox-ul (detail-toggle) într-o „pastilă” mare */
 .toggle {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    font-weight: 600;
+    gap: 10px;
+    height: 44px;
+    padding: 0 18px;
+    border: 2px solid var(--accent);
+    border-radius: 999px;
+    color: var(--accent-dark);
+    font-weight: 700;
     cursor: pointer;
+    transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.toggle:hover { background: var(--accent-soft); }
+
+.toggle:has(input:checked) {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff1d6;
 }
 
 .toggle input {
     width: 18px;
     height: 18px;
     margin: 0;
-    accent-color: var(--accent);
+    accent-color: var(--gold);
     cursor: pointer;
 }
 
 .toggle:has(input:disabled) { cursor: progress; opacity: 0.6; }
 
-.more {
-    padding-top: 18px;
-    border-top: 3px double var(--border);
+.section-title {
+    margin: 24px 0 10px;
+    font-family: var(--serif);
+    font-size: 1.2rem;
+    color: var(--accent-dark);
 }
 
-.inline { display: flex; align-items: center; gap: 10px; }
+/* unde se vede și notița */
+.personal {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+}
+
+.personal label {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
 
 .input {
     width: 100%;
-    padding: 7px 12px;
+    height: 40px;
+    padding: 0 12px;
     border: 1.5px solid var(--border);
-    border-radius: 8px;
-    background: var(--card);
+    border-radius: var(--r-sm);
+    background: var(--ticket);
     color: var(--text);
     font: inherit;
     font-size: 0.9rem;
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
 }
 
 .input:focus {
     outline: none;
     border-color: var(--gold);
+    background: var(--card);
     box-shadow: 0 0 0 3px rgba(216, 168, 88, 0.35);
 }
 
-/* dt cu <label> in el: ia stilul lui dt */
-.fields dt label { cursor: pointer; }
-
-.danger {
-    margin-top: 22px;
+.footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 24px;
     padding-top: 16px;
     border-top: 1px dashed var(--border);
 }
+
+.dates { font-size: 0.82rem; color: var(--muted); }
 
 .remove {
     padding: 7px 16px;
@@ -88,7 +205,14 @@
     font-size: 0.82rem;
     font-weight: 600;
     cursor: pointer;
+    transition: background 0.2s, color 0.2s;
 }
 
 .remove:hover:not(:disabled) { background: #b3402f; color: #fff; }
 .remove:disabled { opacity: 0.55; cursor: default; }
+
+@media (max-width: 760px) {
+    .detail { padding: 18px 16px 22px; }
+    .hero { grid-template-columns: 1fr; gap: 20px; }
+    .poster { position: static; width: min(200px, 60%); }
+}

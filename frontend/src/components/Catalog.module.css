@@ -1,25 +1,38 @@
-.catalog {
-    max-height: 70vh;
-    overflow-y: auto;
-    padding-right: 8px;
-    scrollbar-width: thin;
-    scrollbar-color: var(--border) transparent;
+/* căutarea, formatele și categoriile: lipite sub bara de sus când se derulează pagina */
+.filters {
+    position: sticky;
+    top: 56px;
+    z-index: 5;
+    margin: 0 -22px;
+    padding: 10px 22px 2px;
+    background: var(--card);
+    border-bottom: 1px solid transparent;
 }
 
+.catalog { padding-top: 6px; }
+
 .catalog-group + .catalog-group {
-    margin-top: 26px;
+    margin-top: 22px;
 }
 
 .catalog-group h3 {
     display: flex;
     align-items: center;
-    gap: 14px;
-    margin: 0 0 6px;
+    gap: 10px;
+    margin: 0 0 10px;
     font-family: var(--serif);
     font-style: italic;
     font-weight: 600;
-    font-size: 1.3rem;
+    font-size: 1.2rem;
     color: var(--accent);
+}
+
+.catalog-group h3 small {
+    font-family: var(--body);
+    font-style: normal;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--muted);
 }
 
 .catalog-group h3::after {
@@ -29,37 +42,38 @@
     background: linear-gradient(90deg, var(--gold), transparent);
 }
 
+/* grila de afișe */
+.posters {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(128px, 1fr));
+    gap: 14px;
+}
+
+/* lista compactă (vizualizarea „listă”) */
 .catalog-list {
     list-style: none;
     margin: 0;
     padding: 0;
 }
 
-/* ---------- CAUTARE, FILTRE, TABURI ---------- */
+/* ---------- CĂUTARE, FORMATE, CATEGORII ---------- */
 
-.search-input {
-    width: 100%;
-    margin-bottom: 14px;
-    padding: 11px 16px;
-    border: 1.5px solid var(--border);
-    border-radius: 999px;
-    font: inherit;
-    color: var(--text);
-    background: var(--ticket);
-    transition: border-color 0.2s, box-shadow 0.2s;
-}
-
-.search-input:focus {
-    outline: none;
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(216, 168, 88, 0.35);
+.toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
 }
 
 .chips {
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
-    margin-bottom: 16px;
+    margin-bottom: 12px;
 }
 
 .chip {
@@ -83,51 +97,8 @@
     color: #fff1d6;
 }
 
-/* taburile pentru Movies / Series / Animation */
-.tabs {
-    display: flex;
-    margin-bottom: 18px;
-    border-bottom: 2px solid var(--border);
-}
+.empty-text { margin: 0 0 12px; }
 
-.tab {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 10px 6px;
-    margin-bottom: -2px;
-    border: none;
-    border-bottom: 3px solid transparent;
-    background: transparent;
-    color: var(--muted);
-    font-family: var(--serif);
-    font-size: 1.05rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: color 0.2s, border-color 0.2s;
-}
-
-.tab:hover { color: var(--accent-dark); }
-
-.tab[aria-pressed="true"] {
-    color: var(--accent-dark);
-    border-bottom-color: var(--gold);
-}
-
-.tab-count {
-    min-width: 24px;
-    padding: 0 7px;
-    border-radius: 999px;
-    background: var(--accent-soft);
-    color: var(--accent);
-    font-family: var(--body);
-    font-size: 0.72rem;
-    font-weight: 700;
-    line-height: 1.7;
-}
-
-@media (max-width: 700px) {
-    .catalog { max-height: 60vh; }
+@media (max-width: 480px) {
+    .posters { grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 10px; }
 }

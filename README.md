@@ -19,12 +19,10 @@ Sample data used across all stages:
 3. Spirited Away, unwatched, animation
 
 ## How to run
-cd frontend
-npm install
-npm run api    # terminal 1, http://localhost:3001
-npm run dev    # terminal 2, http://localhost:5173
+cd backend && npm install && npm run dev     # terminal 1, API on http://localhost:3001
+cd frontend && npm install && npm run dev    # terminal 2, http://localhost:5173
 
-Then open the address printed in the terminal (http://localhost:5173). Requires Node `^20.19` or `>=22.12` (Vite 8). The API address is read from `VITE_API_URL` (default `http://localhost:3001`); `frontend/.env.example` documents it.
+Then open the address printed in the terminal (http://localhost:5173). Requires Node `^20.19` or `>=22.12` (Vite 8). The API address is read from `VITE_API_URL` (default `http://localhost:3001`); `frontend/.env.example` documents it. The backend reads `PORT`, `CORS_ORIGIN` and, optionally, `TMDB_API_KEY` from `backend/.env` (see `backend/.env.example`). With a free TMDB key, the "Custom title" form suggests titles while you type and, for the one you pick, adds it to the catalog with its poster, runtime or seasons and description; without the key the form works as before, only without suggestions. Its data is kept in memory and resets on every restart.
 
 The static mockup from stages 1 and 2 can still be opened directly: `mockup/index.html` in a browser, no build step, no server.
 
@@ -83,7 +81,7 @@ Changes made after stage 8, on top of the guide:
 
 ## Extra: catalog and My List
 Beyond the guide, the interface has two panels:
-- **Catalog** (`Catalog`, `CatalogItem`): about 190 titles, including recent ones. A search box and category chips (Action, Comedy, Drama, Romance, Thriller, SF) filter the list, there is one tab per format (Movies, Series, Animation), and the titles in a tab are grouped by category. Each title has a "Show details" panel (`Detalii`, built on `DetaliiCorp`) with the year, category, runtime or seasons and episodes, a short description and a link to IMDb. The first three titles are the sample data above; the catalog is served from `frontend/db.json` (see stage 6), while the categories and formats are constants in `frontend/src/constants.js`.
+- **Catalog** (`Catalog`, `CatalogItem`): about 1200 titles (new releases up to 2026 and long-time favourites), each with a poster. A search box and category chips (Action, Comedy, Drama, Romance, Thriller, SF) filter the list, there is one tab per format (Movies, Series, Animation), and the titles in a tab are grouped by category. Each title has a "Show details" panel (`Detalii`, built on `DetaliiCorp`) with the year, category, runtime or seasons and episodes, a short description and a link to IMDb. The first three titles are the sample data above; the catalog is served from `frontend/db.json` (see stage 6), while the categories and formats are constants in `frontend/src/constants.js`.
 - **My List**: the titles added from the catalog or typed in with the "Add a custom title" form (`FilmForm`, see stage 7). The status can be toggled between Unwatched and Watched; once a title is watched it can be rated with 1-5 stars (`Stars`). The list can be sorted by Order added, Unwatched first or Watched first, and a title can be removed. The list is saved on the server (see stage 7), so it survives a page reload.
 - **Random pick** (`RandomPick`, `Ruleta`): a dialog that asks for a format, then a category (or "Surprise me"). A slot-machine reel with marquee bulbs spins through the matching titles and stops on a random one that has not been watched yet; it can be added to My List, or the reel can be spun again.
 - **Episode tracking** (`Progres`): every series in My List shows its progress ("Next: S2 · E5", episodes watched, a bar with one segment per season) with buttons for one episode back, +1 episode and finish the season. The progress is saved on the server (`episoade`, by PATCH); the last episode marks the series as watched. A binge calculator shows, for a chosen number of episodes per day, the finishing date and the time left.
@@ -164,6 +162,27 @@ Details per stage: see the `ai-log/` folder.
 - [x] **S6-R5** `fetch` appears only in `api.js`, and the API address is read from the environment variable.
 - [x] **S6-R6** The README has the stage section, and `ai-log/etapa-06.md` is filled in.
 - [x] **S6-R7** The commit `Stage 6: ...` is published on GitHub.
+
+## Stage 9: own backend
+json-server is gone. The API is an Express server in `backend/`, with REST routes, server side validation and CORS. Data is still kept in memory and resets on restart (stage 10 moves it to MariaDB).
+- `src/app.js` has the middleware (`cors`, `express.json`), the routers, the 404 route and the central error handler; `src/server.js` only starts it, so the app can be built without taking a port.
+- `src/routes/lista.js`: `GET /lista`, `GET /lista/:id`, `POST /lista` (201), `PATCH /lista/:id`, `DELETE /lista/:id` (204). `src/routes/filme.js`: the read-only catalog, `GET /filme` and `GET /filme/:id`. `GET /health` answers `{ "status": "ok" }`.
+- `src/validation.js` checks everything on the server (title required and at most 100 characters, `format` and `categorie` from fixed lists identical to `frontend/src/constants.js`, `rating` 0-5, dates, notes, ...) and keeps only known fields (allow list), so an `id` sent by the client is ignored. Wrong data gives `400`, an unknown id gives `404`, and every error has the form `{ "error": "..." }`.
+- `GET /cauta?q=` and `GET /cauta/:tip/:id` (in `src/routes/cauta.js`, using `src/tmdb.js`) are the only routes that talk to an outside service: they search TMDB for the "Custom title" form, so the API key stays on the server. `POST /filme` adds a title to the catalog: a title typed by hand in the form goes into the catalog first (with the details TMDB found, if a suggestion was picked) and then into My List, with a `catalogId`, like any catalog title. If the same IMDb id or title and format already exists, the existing one is returned and nothing is duplicated. `validation.js` has one allow list for `/lista` and another for `/filme`. Like My List, the new catalog titles live in memory and reset on restart (stage 10 turns this into an `INSERT`).
+- The catalog (190 titles) and the initial My List moved from `frontend/db.json` to `backend/src/data/`. `db.json`, the `api` script and the `json-server` package were removed from the frontend; `request` in `src/api.js` now shows the `error` text sent by the server.
+
+Testing with curl (Git Bash):
+
+    curl -s -w ' -> %{http_code}
+' http://localhost:3001/lista
+    curl -s -w ' -> %{http_code}
+' -X POST http://localhost:3001/lista -H "Content-Type: application/json" -d '{"titlu":"From curl","format":"movie","categorie":"SF"}'
+    curl -s -w ' -> %{http_code}
+' -X POST http://localhost:3001/lista -H "Content-Type: application/json" -d '{"titlu":""}'
+    curl -s -w ' -> %{http_code}
+' http://localhost:3001/lista/999
+    curl -s -w ' -> %{http_code}
+' -X DELETE http://localhost:3001/lista/8
 
 ## Stage 7: checklist
 - [x] **S7-R1** The form is controlled: every field has `value` and `onChange`.

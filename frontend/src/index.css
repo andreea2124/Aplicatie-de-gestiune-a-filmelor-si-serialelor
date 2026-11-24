@@ -28,6 +28,14 @@
     --c-series: #5c4033;
     --c-animation: #a8741f;
 
+    /* raze și umbre comune */
+    --r-sm: 8px;
+    --r-md: 14px;
+    --r-lg: 20px;
+    --shadow-sm: 0 1px 2px var(--shadow), 0 2px 6px var(--shadow);
+    --shadow-md: 0 8px 20px var(--shadow);
+    --shadow-lg: 0 18px 40px var(--shadow);
+
     --display: "Limelight", "Playfair Display", Georgia, serif;
     --serif: "Playfair Display", Georgia, "Times New Roman", serif;
     --body: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -50,34 +58,167 @@ a { color: var(--accent); }
     position: relative;
     background: var(--card);
     border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 30px 26px 26px;
-    box-shadow: 0 16px 34px var(--shadow);
-}
-
-/* margine de pelicula pe panou */
-.panel::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 8px;
-    background: repeating-linear-gradient(90deg, var(--accent) 0 14px, transparent 14px 20px);
-    border-radius: 8px 8px 0 0;
-    opacity: 0.85;
+    border-radius: var(--r-lg);
+    padding: 20px 22px 22px;
+    box-shadow: var(--shadow-md);
 }
 
 .panel h2 {
-    margin: 4px 0 22px;
-    padding-bottom: 14px;
+    margin: 0 0 16px;
     font-family: var(--serif);
     font-weight: 700;
-    font-size: 1.8rem;
+    font-size: 1.65rem;
     line-height: 1.2;
     color: var(--accent-dark);
-    /* linie dubla, ca pe afisele vechi */
-    border-bottom: 3px double var(--border);
+}
+
+/* antetul unui panou: titlu, un text mic lângă el și controale în dreapta */
+.panel-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 6px 12px;
+    margin-bottom: 14px;
+}
+
+.panel-head h2 { margin: 0; }
+
+.panel-sub {
+    font-size: 0.82rem;
+    color: var(--muted);
+}
+
+.panel-tools {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* grup de butoane tip „pastilă” (format, status, vizualizare, taburi pe mobil) */
+.segmented {
+    display: inline-flex;
+    flex-wrap: wrap;
+    padding: 3px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--ticket);
+}
+
+.segmented button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 14px;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--muted);
+    font: inherit;
+    font-size: 0.84rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+}
+
+.segmented button:hover { color: var(--accent-dark); }
+
+.segmented button[aria-pressed="true"] {
+    background: var(--card);
+    color: var(--accent-dark);
+    font-weight: 700;
+    box-shadow: var(--shadow-sm);
+}
+
+.segmented .count {
+    min-width: 22px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-size: 0.7rem;
+    font-weight: 700;
+    line-height: 1.7;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+}
+
+.segmented svg { display: block; width: 16px; height: 16px; }
+
+/* câmp de căutare cu lupă (și, opțional, o tastă-indiciu în dreapta) */
+.search-field {
+    position: relative;
+    display: block;
+    flex: 1 1 200px;
+}
+
+.search-field svg {
+    position: absolute;
+    left: 13px;
+    top: 50%;
+    width: 16px;
+    height: 16px;
+    transform: translateY(-50%);
+    color: var(--muted);
+    pointer-events: none;
+}
+
+.search-field input {
+    width: 100%;
+    height: 40px;
+    padding: 0 40px 0 38px;
+    border: 1.5px solid var(--border);
+    border-radius: 999px;
+    background: var(--ticket);
+    color: var(--text);
+    font: inherit;
+    font-size: 0.92rem;
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+}
+
+.search-field input:focus {
+    outline: none;
+    border-color: var(--accent);
+    background: var(--card);
+    box-shadow: 0 0 0 3px rgba(216, 168, 88, 0.35);
+}
+
+.search-field kbd {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    padding: 0 7px;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    background: var(--card);
+    color: var(--muted);
+    font: inherit;
+    font-size: 0.72rem;
+    pointer-events: none;
+}
+
+.search-field input:focus ~ kbd { display: none; }
+
+/* biletul care „zboară” din catalog spre My List la adăugare (vezi src/zbor.js) */
+.flyer {
+    position: fixed;
+    z-index: 60;
+    padding: 4px 12px;
+    border-radius: 6px;
+    background: var(--gold);
+    color: #2b1a13;
+    font-size: 0.78rem;
+    font-weight: 700;
+    white-space: nowrap;
+    box-shadow: var(--shadow-lg);
+    pointer-events: none;
+}
+
+.bump { animation: bump 0.5s ease; }
+
+@keyframes bump {
+    40% { transform: scale(1.18); }
 }
 
 .ticket-no {
@@ -163,10 +304,14 @@ select {
     font-size: 0.82rem;
     font-weight: 600;
     cursor: pointer;
-    transition: background 0.2s, color 0.2s, opacity 0.2s;
+    transition: background 0.2s, color 0.2s, opacity 0.2s, transform 0.1s;
 }
 
+/* și un <Link> cu clasa .btn arată ca un buton */
+a.btn { display: inline-block; text-decoration: none; }
+
 .btn:hover:not(:disabled) { background: var(--accent-soft); }
+.btn:active:not(:disabled) { transform: scale(0.96); }
 
 .btn-primary {
     background: var(--accent);

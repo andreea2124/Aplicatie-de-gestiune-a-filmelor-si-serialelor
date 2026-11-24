@@ -4,19 +4,22 @@
 // - fișierele IMDb (~290 MB) se descarcă în scripts/imdb/ dacă lipsesc (ignorate de git);
 // - scripts/cache.json păstrează descrierile deja descărcate, ca să nu se ceară din nou;
 // - rezultatul se scrie în scripts/imdb/out.json.
+// Cu --scrie se rescrie backend/src/data/catalog.json: titlurile existente își păstrează id-ul
+// (My List le referă prin catalogId), iar cele noi primesc id-uri în continuare.
+// Posterele se adaugă separat, cu scripts/build-posters.mjs (are nevoie de o cheie TMDB).
 import fs from "node:fs";
 import zlib from "node:zlib";
 import readline from "node:readline";
 import path from "node:path";
 import { Readable } from "node:stream";
 import { pipeline } from "node:stream/promises";
-import { pathToFileURL, fileURLToPath } from "node:url";
+import { fileURLToPath } from "node:url";
 
 const SCRIPTS = path.dirname(fileURLToPath(import.meta.url));
 const DIR = path.join(SCRIPTS, "imdb");
-const CATALOG_VECHI = path.join(SCRIPTS, "..", "frontend", "src", "data", "catalog.js");
+const CATALOG_VECHI = path.join(SCRIPTS, "..", "backend", "src", "data", "catalog.json");
 // --offline: fără cereri noi pentru descrieri, se folosește doar ce e în cache
-// --scrie: rescrie frontend/src/data/catalog.js cu datele obținute
+// --scrie: rescrie backend/src/data/catalog.json cu datele obținute
 const OFFLINE = process.argv.includes("--offline");
 const SCRIE = process.argv.includes("--scrie");
 
@@ -30,8 +33,17 @@ for (const nume of ["title.basics", "title.ratings", "title.episode"]) {
   if (!res.ok) throw new Error(`${nume}: HTTP ${res.status}`);
   await pipeline(Readable.fromWeb(res.body), fs.createWriteStream(fisier));
 }
-const QUOTA = { movie: 0, series: 0, animation: 0 };
-const OVERFETCH = 1.5;
+// Total țintă: 1200 titluri. Câte titluri NOI se adaugă la fiecare format (în afara celor existente,
+// care sunt 86 filme + 60 seriale + 44 animații): 414 + 340 + 256 = 1010 noi.
+const QUOTA = { movie: 414, series: 340, animation: 256 };
+const TOTAL = { movie: 500, series: 400, animation: 300 }; // câte titluri are catalogul la fiecare format, în final
+const OVERFETCH = 1.5; // se iau mai mulți candidați, pentru că unii nu au descriere sau poster
+// Cum se amestecă titlurile noi: 40% recente (de la AN_RECENT încoace), 40% cele mai populare din
+// toate timpurile și 20% din ultimii doi ani (anul curent primul, ca noutățile să fie în catalog).
+const AN_RECENT = 2015;
+// Ce pondere are fiecare categorie într-un format (suma = 1). Categoria unui titlu nou se alege dintre
+// cele ale genurilor lui, cu cea mai mare lipsă față de țintă; așa Action nu mai înghite totul.
+const PONDERI = { Action: 0.2, Comedy: 0.2, Drama: 0.22, Romance: 0.12, Thriller: 0.14, SF: 0.12 };
 
 const norm = (s) =>
   s.toLowerCase().replace(/&/g, "and").normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]/g, "");
@@ -68,7 +80,7 @@ for (const r of randuri) {
 }
 
 // ---------- 2. catalogul existent -> id IMDb ----------
-const vechi = (await import(pathToFileURL(CATALOG_VECHI).href)).catalog;
+const vechi = JSON.parse(fs.readFileSync(CATALOG_VECHI, "utf8"));
 const esteAnim = (r) => r.genuri.includes("Animation");
 const compat = (r, format) =>
   format === "movie" ? r.tip === "movie" : format === "series" ? r.tip !== "movie" : true;
@@ -87,36 +99,101 @@ for (const t of vechi) {
 console.log("existente nerezolvate:", nerezolvate);
 
 // ---------- 3. candidați noi ----------
+// Fiecare gen IMDb contribuie la una dintre cele 6 categorii ale aplicației; un titlu poate avea mai multe.
 const MAP_CATEGORIE = {
   Action: "Action", Adventure: "Action", Comedy: "Comedy", Drama: "Drama", Biography: "Drama", History: "Drama",
   War: "Drama", Music: "Drama", Musical: "Drama", Sport: "Drama", Romance: "Romance", Thriller: "Thriller",
   Crime: "Thriller", Horror: "Thriller", Mystery: "Thriller", "Sci-Fi": "SF", Fantasy: "SF",
 };
 const EXCLUSE = new Set(["Documentary", "Reality-TV", "Talk-Show", "News", "Game-Show", "Adult", "Short"]);
-function categorie(r, anim) {
+function categoriiPosibile(r, anim) {
+  const cats = new Set();
   for (const g of r.genuri) {
-    if (g === "Family") { if (anim) return "Comedy"; continue; }
-    if (MAP_CATEGORIE[g]) return MAP_CATEGORIE[g];
+    if (g === "Family") { if (anim) cats.add("Comedy"); continue; }
+    if (MAP_CATEGORIE[g]) cats.add(MAP_CATEGORIE[g]);
   }
-  return null;
+  return [...cats];
 }
 const folosite = new Set(alese.filter((a) => a.r).map((a) => a.r.imdb));
 const titluriFolosite = new Set(vechi.map((t) => norm(t.titlu) + "|" + t.format));
 const an_max = new Date().getFullYear();
 
-const candidati = { movie: [], series: [], animation: [] };
+// toți candidații posibili pe format, în ordinea voturilor
+const grupe = { movie: [], series: [], animation: [] };
 for (const r of randuri.sort((a, b) => b.voturi - a.voturi)) {
   if (folosite.has(r.imdb) || r.genuri.some((g) => EXCLUSE.has(g)) || !r.an || r.an > an_max) continue;
   const anim = esteAnim(r);
   const format = anim ? "animation" : r.tip === "movie" ? "movie" : "series";
   if (r.tip === "movie" && (!r.rt || r.rt < 60)) continue;
-  const cat = categorie(r, anim);
-  if (!cat) continue;
+  const cats = categoriiPosibile(r, anim);
+  if (!cats.length) continue;
   const cheie = norm(r.titlu) + "|" + format;
   if (titluriFolosite.has(cheie)) continue;
-  if (candidati[format].length >= Math.ceil(QUOTA[format] * OVERFETCH)) continue;
   titluriFolosite.add(cheie);
-  candidati[format].push({ existent: false, titlu: r.titlu, format, categorie: cat, r });
+  grupe[format].push({ existent: false, titlu: r.titlu, format, cats, r });
+}
+
+// alternează două liste (anul curent, apoi cel trecut)
+function intercalat(a, b) {
+  const out = [];
+  for (let i = 0; i < Math.max(a.length, b.length); i++) {
+    if (a[i]) out.push(a[i]);
+    if (b[i]) out.push(b[i]);
+  }
+  return out;
+}
+
+// Ordinea în care se încearcă candidații: A (recente) și B (populare din toate timpurile) câte 2,
+// apoi unul din C (ultimii doi ani, anul curent primul): 40% / 40% / 20%.
+function* amestec(grup) {
+  const liste = {
+    A: grup.filter((t) => t.r.an >= AN_RECENT && t.r.an < an_max - 1),
+    B: grup,
+    C: intercalat(grup.filter((t) => t.r.an === an_max), grup.filter((t) => t.r.an === an_max - 1)),
+  };
+  const poz = { A: 0, B: 0, C: 0 };
+  const vazute = new Set();
+  let maiSunt = true;
+  while (maiSunt) {
+    maiSunt = false;
+    for (const k of ["A", "B", "A", "B", "C"]) {
+      while (poz[k] < liste[k].length && vazute.has(liste[k][poz[k]].r.imdb)) poz[k]++;
+      if (poz[k] < liste[k].length) {
+        const t = liste[k][poz[k]++];
+        vazute.add(t.r.imdb);
+        maiSunt = true;
+        yield t;
+      }
+    }
+  }
+}
+
+// Câte titluri mai lipsesc din fiecare categorie, pe format (față de PONDERI), după cele existente.
+const existente = {};
+for (const f of Object.keys(TOTAL)) existente[f] = Object.fromEntries(Object.keys(PONDERI).map((c) => [c, 0]));
+for (const a of alese) if (existente[a.format] && a.categorie in existente[a.format]) existente[a.format][a.categorie]++;
+
+const candidati = { movie: [], series: [], animation: [] };
+for (const format of Object.keys(QUOTA)) {
+  const tinta = {};
+  for (const c of Object.keys(PONDERI)) {
+    tinta[c] = Math.ceil(Math.max(0, Math.round(TOTAL[format] * PONDERI[c]) - existente[format][c]) * OVERFETCH);
+  }
+  const raman = { ...tinta };
+  const cap = Math.ceil(QUOTA[format] * OVERFETCH);
+  for (const t of amestec(grupe[format])) {
+    if (candidati[format].length >= cap) break;
+    // categoria posibilă cu cea mai mare lipsă relativă; dacă toate au ținta atinsă, titlul se sare
+    let cat = null;
+    let celMaiMare = 0;
+    for (const c of t.cats) {
+      if (raman[c] > 0 && raman[c] / tinta[c] > celMaiMare) { celMaiMare = raman[c] / tinta[c]; cat = c; }
+    }
+    if (!cat) continue;
+    raman[cat]--;
+    t.categorie = cat;
+    candidati[format].push(t);
+  }
 }
 console.log("candidați", Object.fromEntries(Object.entries(candidati).map(([k, v]) => [k, v.length])));
 
@@ -236,11 +313,46 @@ async function tvmaze(t) {
   return txt.length > 40 ? scurteaza(txt) : null;
 }
 
+// Cheia TMDB (din scripts/.env.local sau variabila TMDB_API_KEY), aceeași ca la build-posters.mjs.
+// Dacă există, descrierile titlurilor noi se cer întâi de la TMDB: un singur request rapid,
+// fără limitele Wikipedia. TVmaze și Wikipedia rămân ca variante de rezervă.
+function citesteCheiaTmdb() {
+  if (process.env.TMDB_API_KEY) return process.env.TMDB_API_KEY.trim();
+  const fisier = path.join(SCRIPTS, ".env.local");
+  if (!fs.existsSync(fisier)) return null;
+  const linie = fs.readFileSync(fisier, "utf8").split(String.fromCharCode(10)).find((l) => l.trim().startsWith("TMDB_API_KEY="));
+  return linie ? linie.slice(linie.indexOf("=") + 1).trim().replace(/^["']|["']$/g, "") : null;
+}
+const CHEIE_TMDB = citesteCheiaTmdb();
+
+// Un singur request /find întoarce și descrierea (overview), și calea posterului.
+// Rezultatul se păstrează în cache sub cheia "tmdb:<id imdb>".
+async function infoTmdb(t) {
+  const cheie = `tmdb:${t.r.imdb}`;
+  if (cheie in cache) return cache[cheie];
+  const rez = await json(`https://api.themoviedb.org/3/find/${t.r.imdb}?external_source=imdb_id&api_key=${CHEIE_TMDB}`);
+  if (!rez) return { descriere: null, poster: null }; // eșec de rețea: nu se salvează în cache
+  const tv = rez.tv_results ?? [];
+  const film = rez.movie_results ?? [];
+  const lista = t.r.tip === "movie" ? [...film, ...tv] : [...tv, ...film];
+  const txt = lista.map((x) => (x.overview ?? "").replace(/\s+/g, " ").trim()).find((x) => x.length > 40);
+  const info = { descriere: txt ? scurteaza(txt) : null, poster: lista.find((x) => x.poster_path)?.poster_path ?? null };
+  cache[cheie] = info;
+  return info;
+}
+
+// Titlurile noi trebuie să aibă poster: fără el nu se mai pierde timp cu descrierea.
 async function descriere(t) {
   const k = t.r.imdb;
-  if (k in cache) return cache[k];
+  const info = !t.existent && CHEIE_TMDB && !OFFLINE ? await infoTmdb(t) : null;
+  if (info) {
+    if (!info.poster) return null;
+    t.poster = info.poster;
+  }
+  if (cache[k]) return cache[k];
   if (OFFLINE) return null;
-  let d = t.r.tip === "movie" ? null : await tvmaze(t);
+  let d = info?.descriere ?? null;
+  if (!d && t.r.tip !== "movie") d = await tvmaze(t);
   if (!d) d = await wikipedia(t);
   cache[k] = d;
   return d;
@@ -255,15 +367,15 @@ async function lucrator() {
     if (++gata % 50 === 0) { salveaza(); console.log("descrieri", gata); }
   }
 }
-// TVmaze e limitat la ritm, Wikipedia suportă paralelism
-await Promise.all(Array.from({ length: 2 }, lucrator));
+// TVmaze e limitat la ritm (are propriul spațiu între cereri), TMDB și Wikipedia suportă paralelism
+await Promise.all(Array.from({ length: CHEIE_TMDB ? 6 : 2 }, lucrator));
 salveaza();
 
 // ---------- 6. selecție finală ----------
 const rezultat = [];
 for (const t of alese) rezultat.push(t);
 for (const format of Object.keys(QUOTA)) {
-  const buni = candidati[format].filter((t) => t.descriere && (t.r.tip === "movie" || ep.get(t.r.imdb)?.size));
+  const buni = candidati[format].filter((t) => t.descriere && (!CHEIE_TMDB || t.poster) && (t.r.tip === "movie" || ep.get(t.r.imdb)?.size));
   rezultat.push(...buni.slice(0, QUOTA[format]));
   console.log(format, "bune", buni.length, "folosite", Math.min(buni.length, QUOTA[format]));
 }
@@ -281,34 +393,17 @@ const iesire = rezultat.map((t) => {
     }
     if (t.descriere) o.descriere = t.descriere;
     o.imdb = t.r.imdb;
+    if (t.poster) o.poster = t.poster;
   }
   return o;
 });
 fs.writeFileSync(path.join(DIR, "out.json"), JSON.stringify(iesire, null, 1));
 console.log("total", iesire.length, "fără descriere:", iesire.filter((o) => o.imdb && !o.descriere).map((o) => o.titlu));
 
-// ---------- 7. scrierea catalog.js ----------
-// Se păstrează antetul fișierului (CATEGORII, FORMATE); fiecare titlu pe un rând,
-// cu un rând liber între grupuri (format + categorie), ca în fișierul scris de mână.
+// ---------- 7. scrierea catalogului ----------
 if (SCRIE) {
-  const sursa = fs.readFileSync(CATALOG_VECHI, "utf8");
-  const antet = sursa.slice(0, sursa.indexOf("export const catalog = ["));
-  const CAMPURI = ["id", "titlu", "format", "categorie", "an", "durata", "sezoane", "durataEp", "descriere", "imdb"];
-  const rand = (o) =>
-    `  { ${CAMPURI.filter((c) => o[c] !== undefined)
-      .map((c) => `${c}: ${c === "sezoane" ? `[${o[c].join(", ")}]` : JSON.stringify(o[c])}`)
-      .join(", ")} },`;
-  const linii = [];
-  let grup = null;
-  for (const o of [...iesire].sort((a, b) => a.id - b.id)) {
-    const g = o.id <= 3 ? "readme" : `${o.format}|${o.categorie}`;
-    if (grup !== null && g !== grup) linii.push("");
-    grup = g;
-    linii.push(rand(o));
-  }
-  const comentariu =
-    "// An, durată (minute), episoade pe sezon și id IMDb: datasetul IMDb; descrieri: TVmaze / Wikipedia.\n" +
-    "// Generat cu scripts/build-catalog.mjs.\n";
-  fs.writeFileSync(CATALOG_VECHI, `${antet}${comentariu}export const catalog = [\n${linii.join("\n")}\n];\n`);
-  console.log("scris", CATALOG_VECHI);
+  const CAMPURI = ["id", "titlu", "format", "categorie", "an", "durata", "sezoane", "durataEp", "descriere", "imdb", "poster"];
+  const sortat = [...iesire].sort((a, b) => a.id - b.id).map((o) => Object.fromEntries(CAMPURI.filter((c) => o[c] !== undefined).map((c) => [c, o[c]])));
+  fs.writeFileSync(CATALOG_VECHI, JSON.stringify(sortat, null, 2) + "\n");
+  console.log("scris", CATALOG_VECHI, sortat.length, "titluri");
 }

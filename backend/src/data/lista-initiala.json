@@ -1,0 +1,68 @@
+[
+  {
+    "catalogId": 144,
+    "titlu": "The Summer I Turned Pretty",
+    "format": "series",
+    "categorie": "Romance",
+    "vizionat": true,
+    "rating": 5,
+    "id": 1,
+    "episoade": 26
+  },
+  {
+    "catalogId": 14,
+    "titlu": "John Wick",
+    "format": "movie",
+    "categorie": "Action",
+    "vizionat": true,
+    "rating": 4,
+    "id": 2
+  },
+  {
+    "catalogId": 142,
+    "titlu": "One Day",
+    "format": "series",
+    "categorie": "Romance",
+    "vizionat": true,
+    "rating": 5,
+    "id": 3,
+    "episoade": 14
+  },
+  {
+    "catalogId": 138,
+    "titlu": "The White Lotus",
+    "format": "series",
+    "categorie": "Drama",
+    "vizionat": false,
+    "rating": 0,
+    "id": 4,
+    "vizionatLa": null
+  },
+  {
+    "catalogId": 54,
+    "titlu": "Bridgerton",
+    "format": "series",
+    "categorie": "Romance",
+    "vizionat": true,
+    "rating": 5,
+    "id": 5
+  },
+  {
+    "catalogId": 64,
+    "titlu": "Sherlock",
+    "format": "series",
+    "categorie": "Thriller",
+    "vizionat": true,
+    "rating": 5,
+    "id": 6
+  },
+  {
+    "catalogId": 152,
+    "titlu": "The Night Agent",
+    "format": "series",
+    "categorie": "Thriller",
+    "vizionat": true,
+    "rating": 5,
+    "id": 7
+  }
+]

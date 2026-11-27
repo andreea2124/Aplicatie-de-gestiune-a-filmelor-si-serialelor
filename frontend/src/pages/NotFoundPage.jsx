@@ -11,7 +11,7 @@ export default function NotFoundPage() {
       <span className={styles.stamp}>Sold out</span>
       <h2>Page not found</h2>
       <p className="info">This ticket leads nowhere.</p>
-      <Link to="/" className="btn btn-primary">
+      <Link to="/lista" className="btn btn-primary">
         Back to My List
       </Link>
     </section>

@@ -123,7 +123,7 @@ export default function Catalog({ catalog, categorii, formate, idsInLista, onAda
         {dinFormat.length === 0 && (
           <div className="empty empty-small">
             <p className={styles.emptyText}>
-              No titles match your search. Not in the catalog? <Link to="/">Add it as your own title</Link>.
+              No titles match your search. Not in the catalog? <Link to="/lista">Add it as your own title</Link>.
             </p>
             <button
               type="button"

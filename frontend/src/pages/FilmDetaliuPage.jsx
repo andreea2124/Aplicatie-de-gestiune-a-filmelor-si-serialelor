@@ -93,7 +93,7 @@ export default function FilmDetaliuPage() {
     setOcupat(true);
     try {
       await stergeElement(film);
-      navigate("/");
+      navigate("/lista");
     } catch (err) {
       setEroareActiune(err.message);
       setOcupat(false);
@@ -114,7 +114,7 @@ export default function FilmDetaliuPage() {
         <p className="error" data-testid="error">
           This title could not be loaded: {error}
         </p>
-        <Link to="/">Back to My List</Link>
+        <Link to="/lista">Back to My List</Link>
       </section>
     );
   }
@@ -124,7 +124,7 @@ export default function FilmDetaliuPage() {
 
   return (
     <section className={`panel ${styles.detail}`} data-testid="detail">
-      <Link to="/" className={styles.back}>
+      <Link to="/lista" className={styles.back}>
         &larr; Back to My List
       </Link>
 

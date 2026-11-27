@@ -62,7 +62,7 @@ export default function Layout() {
 
   function arataLista(status) {
     setStatusLista(status);
-    if (pathname !== "/") navigate("/");
+    if (pathname !== "/lista") navigate("/lista");
     // după ce pagina e desenată, se derulează la My List
     setTimeout(() => document.getElementById("my-list")?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
   }
@@ -77,7 +77,10 @@ export default function Layout() {
           Plot
         </Link>
         <nav className={styles.nav} data-testid="nav" aria-label="Main">
-          <NavLink to="/" end className={navClass}>
+          <NavLink to="/catalog" className={navClass}>
+            Catalog
+          </NavLink>
+          <NavLink to="/lista" className={navClass}>
             My List
             {gata && (
               // aici „aterizează” biletul care zboară la adăugarea din catalog
@@ -85,9 +88,6 @@ export default function Layout() {
                 {filme.length}
               </span>
             )}
-          </NavLink>
-          <NavLink to="/catalog" className={navClass}>
-            Catalog
           </NavLink>
           <NavLink to="/despre" className={navClass}>
             About

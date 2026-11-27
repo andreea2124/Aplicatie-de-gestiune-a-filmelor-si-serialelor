@@ -1,4 +1,4 @@
-import { Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 import ListaProvider from "./ListaProvider.jsx";
 import Layout from "./components/Layout.jsx";
 import FilmePage from "./pages/FilmePage.jsx";
@@ -16,7 +16,8 @@ export default function App() {
     <ListaProvider>
       <Routes>
         <Route element={<Layout />}>
-          <Route path="/" element={<FilmePage />} />
+          <Route path="/" element={<Navigate to="/catalog" replace />} />
+          <Route path="/lista" element={<FilmePage />} />
           <Route path="/lista/:id" element={<FilmDetaliuPage />} />
           <Route path="/catalog" element={<CatalogPage />} />
           <Route path="/catalog/:id" element={<CatalogDetaliuPage />} />
